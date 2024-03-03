@@ -1,6 +1,26 @@
 {
+    "name": "sir/adherents",
+    "description": "Gestion des adhérents et des partenaires de Switch in Reims",
+    "version": "0.1.0",
     "type": "project",
-    "license": "proprietary",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aurélien OUDART",
+            "homepage": "https://github.com/Koretech10",
+            "role": "developer"
+        },
+        {
+            "name": "Corentin ANTOINE",
+            "homepage": "https://github.com/Jepacor",
+            "role": "developer"
+        },
+        {
+            "name": "Mathieu PIGNON",
+            "homepage": "https://github.com/MatCloud51",
+            "role": "developer"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
