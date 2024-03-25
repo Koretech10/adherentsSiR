@@ -128,7 +128,7 @@ class Adherent
 
     public function getLienImagePath(): ?string
     {
-        return $this->lien_image ? realpath(implode('/', array_slice( preg_split('|[\\\\/]|', (string) $_SERVER['DOCUMENT_ROOT']), 0, -1)).'/public/avatar/'.$this->lien_image) : null;
+        return $this->lien_image ? realpath(implode('/', array_slice( preg_split('|[\\\\/]|', (string) $_SERVER['DOCUMENT_ROOT']), 0, -1)).'/public/img/avatar/'.$this->lien_image) : null;
     }
 
     public function setLienImagePath(?string $lien_image): self

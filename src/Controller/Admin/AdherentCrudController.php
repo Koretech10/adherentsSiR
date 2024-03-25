@@ -55,6 +55,7 @@ class AdherentCrudController extends AbstractCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [
                 $photo,
+                $pseudo,
                 $nom,
                 $prenom,
                 $dateNaissance,
@@ -65,6 +66,7 @@ class AdherentCrudController extends AbstractCrudController
         elseif (Crud::PAGE_DETAIL === $pageName) {
             return [
                 $photo,
+                $pseudo,
                 $nom,
                 $prenom,
                 $dateNaissance,
@@ -75,6 +77,7 @@ class AdherentCrudController extends AbstractCrudController
         elseif (Crud::PAGE_NEW === $pageName) {
             return [
                 $photoPath,
+                $pseudo,
                 $nom,
                 $prenom,
                 $dateNaissance,
@@ -84,6 +87,7 @@ class AdherentCrudController extends AbstractCrudController
         elseif (Crud::PAGE_EDIT === $pageName) {
             return [
                 $photoPath,
+                $pseudo,
                 $nom,
                 $prenom,
                 $dateNaissance,

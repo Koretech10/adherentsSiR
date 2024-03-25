@@ -34,7 +34,8 @@ class HomeController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Adherent Sir');
+            ->setTitle('<img class="img-responsive" alt="Adhérents Switch In Reims" src="img/favicon.ico">')
+            ->setFaviconPath('img/favicon.ico');
     }
 
     public function configureCrud(): Crud
@@ -48,7 +49,8 @@ class HomeController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-tools', Partenaire::class);
-        yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-tools', Adherent::class);
+        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-list', Partenaire::class);
+        yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-list', Adherent::class);
+        yield MenuItem::linkToRoute('Liste des cartes', 'fas fa-pencil-alt', 'app_carte');
     }
 }
