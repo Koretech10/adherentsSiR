@@ -12,10 +12,81 @@
   src="https://code.jquery.com/jquery-3.7.1.min.js"
   integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
   crossorigin="anonymous"></script>
+  <style>
+    .table{
+        padding-top: 5px;
+        width: 100%;
+        margin-bottom: 50px;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+        font-size: 75%;
+    }
+    .text-success{
+        background-color: #dff0d8;
+    }
+    .text-danger{
+        background-color: #f2dede;
+    }
+    table thead tr td th{
+        border: 1px solid #ddd;
+        padding: 0.5em !important;
+    }
+    table thead {
+        background: #eee;
+    }
+    td {
+        border: 1px solid #ddd;
+        border-width: 1px;
+        border-color: rgb(221, 221, 221);
+        height: 0.3em;
+        padding: 0.1em;
+        padding-right: 1em;
+    }
+    th {
+        border: 1px solid #ddd;
+        border-top-width: 1px;
+        border-bottom-width: 1px;
+        border-top-style: solid;
+        border-top-color: rgb(221, 221, 221);
+        background-color: rgb(240, 240, 240);
+        padding: 0.4em;
+        padding-right: 1em;
+    }
+    .col-d{
+        width: 20em !important;
+        text-align: right;
+    }
+    .bold{
+        font-weight: bold;
+    }
+</style>
 <div class="example-wrapper">
-    {% for adherent in adherents %}
-    <button onclick='clear()' name="id" value="{{adherent.id}}" type="button" class="clickable loadCarte btn btn-primary" data-toggle="modal" data-target=".modalCarte">{{adherent.nom|capitalize}} {{adherent.prenom}}</button>
-    {% endfor %}
+    <h2>Liste des adhérents de Switch in Reims</h2>
+    <form method="POST" class="form-inline">
+		<button type="submit" name="pdf" value=1 class="btn btn-primary">Exporter en PDF</button>
+    </form>
+    <div style="width:100%">
+        <table>
+            <thead>
+                <tr>
+                    <th class="text-center col-d">Nom</th>
+                    <th class="text-center col-d">Prénom</th>
+                    <th class="text-center col-d">Date d'expiration</th>
+                    <th class="text-center col-d"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for adherent in adherents %}
+                    <tr class="text-right">
+                        <td class="col-d" nowrap>{{adherent.nom}}</td>
+                        <td class="col-d" nowrap>{{adherent.prenom}}</td>
+                        <td class="col-d" nowrap>{{adherent.dateExpiration|date('d/m/Y')}}</td>
+                        <td><button onclick='clear()' name="id" value="{{adherent.id}}" type="button" class="clickable loadCarte btn btn-primary" data-toggle="modal" data-target=".modalCarte">Carte d'adhérent</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <div>
 </div>
 
 <div class="modal fade text-left modalCarte" tabindex="-1" role="dialog">

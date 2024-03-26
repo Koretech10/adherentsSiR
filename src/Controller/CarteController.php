@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
 class CarteController extends AbstractController
 {
     private readonly ObjectManager $em;
@@ -19,12 +22,29 @@ class CarteController extends AbstractController
 	}
 
     #[Route('/carte', name: 'app_carte')]
-    public function index(): Response
+    public function index(Request $request)
     {
         $adherents = $this->em->getRepository(Adherent::class)->getAdherentsNonExpires(date('Y-m-d'));
-        return $this->render('carte/liste.html.twig', [
-            'adherents' => $adherents
-        ]);
+
+        if($request->request->get('pdf') != 1){
+            return $this->render('carte/liste.html.twig', [
+                'adherents' => $adherents
+            ]);
+        }else{
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Helvetica');
+            $dompdf = new Dompdf($pdfOptions);
+            $html = $this->renderView('carte/liste_pdf.html.twig', [
+                'adherents' => $adherents,
+                'logo' => $this->imageToBase64($this->getParameter('kernel.project_dir') . '/public/img/favicon.ico')
+            ]);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A3', 'landscape');
+            $dompdf->render();
+            $dompdf->stream('Liste_adherents'.'_'.date('dmY_Hi').'.pdf', [
+                "Attachment" => true
+            ]);
+        }
     }
 
     #[Route(path: '/carte/model', name: 'carte_model')]
@@ -33,5 +53,13 @@ class CarteController extends AbstractController
         $id = $request->query->get('id_ad');
         $adherent = $this->em->getRepository(Adherent::class)->find($id);
         return $this->render('carte/carte_modele.html.twig', ['adherent' => $adherent, 'photo' => 'img/avatar/'.$adherent->getLienImage()]);
+    }
+
+    private function imageToBase64($path) {
+        $path = $path;
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        return $base64;
     }
 }
