@@ -50,7 +50,7 @@ class AdherentCrudController extends AbstractCrudController
         $dateExpiration = DateField::new('date_expiration',"Date d'expiration'")->setColumns(12);
 
         $photo = ImageField::new('lien_image', false)->setBasePath('img/avatar/');
-        $photoPath = ImageField::new('lien_image', 'Photo')->setUploadDir('public\img\avatar');
+        $photoPath = ImageField::new('lien_image', 'Photo')->setUploadDir('public/img/avatar');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [
