@@ -27,3 +27,7 @@
 ###> IDE PHPStorm ###
 /.idea/
 ###< IDE PHPStorm ###
+
+###> Dossiers avatar ###
+/public/img/avatar/
+###< Dossiers avatar ###
