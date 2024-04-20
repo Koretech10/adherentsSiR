@@ -1,92 +1,45 @@
-{% extends '@!EasyAdmin/layout.html.twig' %}
-{#{% extends '@!EasyAdmin/page/content.html.twig' %}#}
+{% extends ea.templatePath('layout') %}
 
-{% block page_title %}Switch in Reims{% endblock %}
+{% block content_title %}Liste des adhérents de Switch in Reims{% endblock %}
+
+{% block page_actions %}
+<form method="POST" class="form-inline">
+    <button type="submit" name="pdf" value=1 class="btn btn-primary">Exporter en PDF</button>
+</form>
+{% endblock %}
 
 {% block main %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-<script
-  src="https://code.jquery.com/jquery-3.7.1.min.js"
-  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-  crossorigin="anonymous"></script>
-  <style>
-    .table{
-        padding-top: 5px;
-        width: 100%;
-        margin-bottom: 50px;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-        font-size: 75%;
-    }
-    .text-success{
-        background-color: #dff0d8;
-    }
-    .text-danger{
-        background-color: #f2dede;
-    }
-    table thead tr td th{
-        border: 1px solid #ddd;
-        padding: 0.5em !important;
-    }
-    table thead {
-        background: #eee;
-    }
-    td {
-        border: 1px solid #ddd;
-        border-width: 1px;
-        border-color: rgb(221, 221, 221);
-        height: 0.3em;
-        padding: 0.1em;
-        padding-right: 1em;
-    }
-    th {
-        border: 1px solid #ddd;
-        border-top-width: 1px;
-        border-bottom-width: 1px;
-        border-top-style: solid;
-        border-top-color: rgb(221, 221, 221);
-        background-color: rgb(240, 240, 240);
-        padding: 0.4em;
-        padding-right: 1em;
-    }
-    .col-d{
-        width: 20em !important;
-        text-align: right;
-    }
-    .bold{
-        font-weight: bold;
-    }
-</style>
-<div class="example-wrapper">
-    <h2>Liste des adhérents de Switch in Reims</h2>
-    <form method="POST" class="form-inline">
-		<button type="submit" name="pdf" value=1 class="btn btn-primary">Exporter en PDF</button>
-    </form>
-    <div style="width:100%">
-        <table>
-            <thead>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<div class="col-12 table-responsive">
+    <table class="table datagrid">
+        <thead>
+            <tr>
+                <th>Pseudo</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Date d'expiration</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for adherent in adherents %}
                 <tr>
-                    <th class="text-center col-d">Nom</th>
-                    <th class="text-center col-d">Prénom</th>
-                    <th class="text-center col-d">Date d'expiration</th>
-                    <th class="text-center col-d"></th>
+                    <td class="text-nowrap">{{adherent.pseudo}}</td>
+                    <td class="text-nowrap">{{adherent.nom}}</td>
+                    <td class="text-nowrap">{{adherent.prenom}}</td>
+                    <td class="text-nowrap">{{adherent.dateExpiration|date('d/m/Y')}}</td>
+                    <td>
+                        <button onclick='clear()' name="id" value="{{adherent.id}}" type="button" class="clickable loadCarte btn btn-primary" data-toggle="modal" data-target=".modalCarte">
+                            Carte d'adhérent
+                        </button>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for adherent in adherents %}
-                    <tr class="text-right">
-                        <td class="col-d" nowrap>{{adherent.nom}}</td>
-                        <td class="col-d" nowrap>{{adherent.prenom}}</td>
-                        <td class="col-d" nowrap>{{adherent.dateExpiration|date('d/m/Y')}}</td>
-                        <td><button onclick='clear()' name="id" value="{{adherent.id}}" type="button" class="clickable loadCarte btn btn-primary" data-toggle="modal" data-target=".modalCarte">Carte d'adhérent</button></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    <div>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div class="modal fade text-left modalCarte" tabindex="-1" role="dialog">
@@ -102,6 +55,7 @@
         </div>
     </div>
 </div>
+
 <script>
     $( document ).ready(function() {
         $('.loadCarte').click(function(event){
