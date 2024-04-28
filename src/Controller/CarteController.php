@@ -41,8 +41,9 @@ class CarteController extends AbstractController
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A3', 'landscape');
             $dompdf->render();
-            $dompdf->stream('Liste_adherents'.'_'.date('dmY_Hi').'.pdf', [
-                "Attachment" => true
+            $output = $dompdf->output();
+            return new Response($output, 200, [
+                'Content-Type' => 'application/pdf',
             ]);
         }
     }
