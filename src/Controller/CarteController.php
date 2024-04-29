@@ -22,7 +22,7 @@ class CarteController extends AbstractController
 	}
 
     #[Route('/carte', name: 'app_carte')]
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $adherents = $this->em->getRepository(Adherent::class)->getAdherentsNonExpires(date('Y-m-d'));
 
@@ -42,8 +42,10 @@ class CarteController extends AbstractController
             $dompdf->setPaper('A3', 'landscape');
             $dompdf->render();
             $output = $dompdf->output();
+
             return new Response($output, 200, [
                 'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="Liste_adherents_'.date('dmY_Hi').'.pdf"'
             ]);
         }
     }
