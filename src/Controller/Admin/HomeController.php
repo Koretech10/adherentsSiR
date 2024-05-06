@@ -35,7 +35,12 @@ class HomeController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('<img class="img-responsive" alt="Adhérents Switch In Reims" src="img/favicon.ico">')
+            ->setTitle('<img 
+                class="img-responsive d-flex mx-auto" 
+                height="150px" 
+                alt="Adhérents Switch In Reims" 
+                src="img/sir_logo_red.png" 
+            />')
             ->setFaviconPath('img/favicon.ico');
     }
 
