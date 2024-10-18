@@ -24,8 +24,8 @@ class MemberCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des adhérents')
-            ->setEntityLabelInSingular('Adhérent')
-            ->setEntityLabelInPlural('Adhérents')
+            ->setEntityLabelInSingular('adhérent')
+            ->setEntityLabelInPlural('adhérents')
             ->setDefaultSort(['lastName' => 'ASC'])
             ->setSearchFields([
                 'id',

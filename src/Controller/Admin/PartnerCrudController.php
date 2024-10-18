@@ -22,8 +22,8 @@ class PartnerCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des partenaires')
-            ->setEntityLabelInSingular('Partenaire')
-            ->setEntityLabelInPlural('Partenaires')
+            ->setEntityLabelInSingular('partenaire')
+            ->setEntityLabelInPlural('partenaires')
             ->setDefaultSort(['name' => 'ASC'])
             ->setSearchFields(['id', 'name', 'address', 'postalCode', 'city', 'offer'])
             ->setPaginatorPageSize(60);

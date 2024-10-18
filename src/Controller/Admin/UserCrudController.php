@@ -33,8 +33,8 @@ class UserCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des utilisateurs')
-            ->setEntityLabelInSingular('Utilisateur')
-            ->setEntityLabelInPlural('Utilisateurs')
+            ->setEntityLabelInSingular('utilisateur')
+            ->setEntityLabelInPlural('utilisateurs')
             ->setDefaultSort(['username' => 'ASC'])
             ->setSearchFields(['id', 'username'])
             ->setPaginatorPageSize(60);
