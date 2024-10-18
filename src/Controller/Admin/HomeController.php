@@ -57,6 +57,6 @@ class HomeController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-list', Member::class);
         yield MenuItem::linkToCrud('Liste des utilisateurs', 'fas fa-list', User::class)
             ->setPermission('ROLE_ADMIN');
-        yield MenuItem::linkToRoute('Liste des cartes', 'fas fa-pencil-alt', 'app_carte');
+        yield MenuItem::linkToRoute('Liste des cartes', 'fas fa-pencil-alt', 'member_card_list');
     }
 }
