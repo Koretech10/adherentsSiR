@@ -6,6 +6,7 @@ use App\Entity\Partner;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -45,5 +46,15 @@ class PartnerCrudController extends AbstractCrudController
             TextField::new('city', 'Ville'),
             TextareaField::new('offer', 'Avantages'),
         ];
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add('name')
+            ->add('address')
+            ->add('postalCode')
+            ->add('city')
+            ->add('offer');
     }
 }
