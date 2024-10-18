@@ -31,7 +31,7 @@ class MemberCardController extends AbstractController
         $member = $this->memberRepository->find($id);
 
         if (null === $member) {
-            throw new EntityNotFoundException('Member "%d" not found', $id);
+            throw new EntityNotFoundException(\sprintf('Member "%s" not found', $id));
         }
 
         return $this->render('member_card/show.html.twig', [
