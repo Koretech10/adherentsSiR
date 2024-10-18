@@ -24,14 +24,14 @@ class MemberCardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/carte/model', name: 'member_card_show')]
+    #[Route(path: '/show', name: 'member_card_show')]
     public function show(Request $request): Response
     {
         $id = $request->query->get('id_ad');
         $member = $this->memberRepository->find($id);
 
         if (null === $member) {
-            throw new EntityNotFoundException('Member "%d" not found', $id);
+            throw new EntityNotFoundException(\sprintf('Member "%s" not found', $id));
         }
 
         return $this->render('member_card/show.html.twig', [
