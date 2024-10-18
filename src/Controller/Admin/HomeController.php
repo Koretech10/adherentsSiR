@@ -2,11 +2,10 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Adherent;
-use App\Entity\Partenaire;
+use App\Entity\Member;
+use App\Entity\Partner;
 use App\Entity\User;
-use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectManager;
+use App\Repository\MemberRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -16,20 +15,19 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class HomeController extends AbstractDashboardController
 {
-    private readonly ObjectManager $om;
-
-    public function __construct(ManagerRegistry $manager)
+    public function __construct(private readonly MemberRepository $memberRepository)
     {
-        $this->om = $manager->getManager();
     }
 
     #[Route('/', name: 'admin')]
     public function index(): Response
     {
-        $adherents = $this->om->getRepository(Adherent::class)->getAdherentsNonExpires(date('Y-m-d'));
-        $adherentsExpires = $this->om->getRepository(Adherent::class)->getAdherentsExpires(date('Y-m-d'));
+        $now = new \DateTime();
 
-        return $this->render('index.html.twig', ['adherents' => $adherents, 'adherentsExpires' => $adherentsExpires]);
+        return $this->render('index.html.twig', [
+            'unexpiredMembers' => $this->memberRepository->getUnexpiredMembers($now),
+            'expiredMembers' => $this->memberRepository->getExpiredMembers($now),
+        ]);
     }
 
     public function configureDashboard(): Dashboard
@@ -55,10 +53,16 @@ class HomeController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-list', Partenaire::class);
-        yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-list', Adherent::class);
-        yield MenuItem::linkToCrud('Liste des utilisateurs', 'fas fa-list', User::class)
+
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class);
+        yield MenuItem::linkToRoute('Liste des cartes', 'fa-solid fa-id-card', 'member_card_list');
+
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Liste des partenaires', 'fa-solid fa-shop', Partner::class);
+
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Liste des utilisateurs', 'fa-solid fa-user-gear', User::class)
             ->setPermission('ROLE_ADMIN');
-        yield MenuItem::linkToRoute('Liste des cartes', 'fas fa-pencil-alt', 'app_carte');
     }
 }

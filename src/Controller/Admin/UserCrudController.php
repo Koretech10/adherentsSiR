@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -32,8 +33,8 @@ class UserCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des utilisateurs')
-            ->setEntityLabelInSingular('Utilisateur')
-            ->setEntityLabelInPlural('Utilisateurs')
+            ->setEntityLabelInSingular('utilisateur')
+            ->setEntityLabelInPlural('utilisateurs')
             ->setDefaultSort(['username' => 'ASC'])
             ->setSearchFields(['id', 'username'])
             ->setPaginatorPageSize(60);
@@ -61,6 +62,11 @@ class UserCrudController extends AbstractCrudController
                     'Administrateur' => 'ROLE_ADMIN',
                 ]),
         ];
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters->add('username');
     }
 
     public function createNewFormBuilder(
