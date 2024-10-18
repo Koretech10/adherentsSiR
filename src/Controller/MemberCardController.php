@@ -24,7 +24,7 @@ class MemberCardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/carte/model', name: 'member_card_show')]
+    #[Route(path: '/show', name: 'member_card_show')]
     public function show(Request $request): Response
     {
         $id = $request->query->get('id_ad');
