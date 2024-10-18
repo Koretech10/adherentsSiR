@@ -9,22 +9,20 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Closure;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class UserCrudController extends AbstractCrudController
 {
     public function __construct(private readonly UserPasswordHasherInterface $userPasswordHasher)
     {
-
     }
+
     public static function getEntityFqcn(): string
     {
         return User::class;
@@ -68,18 +66,20 @@ class UserCrudController extends AbstractCrudController
     public function createNewFormBuilder(
         EntityDto $entityDto,
         KeyValueStore $formOptions,
-        AdminContext $context
+        AdminContext $context,
     ): FormBuilderInterface {
         $formBuilder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
+
         return $this->addPasswordEventListener($formBuilder);
     }
 
     public function createEditFormBuilder(
         EntityDto $entityDto,
         KeyValueStore $formOptions,
-        AdminContext $context
+        AdminContext $context,
     ): FormBuilderInterface {
         $formBuilder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
+
         return $this->addPasswordEventListener($formBuilder);
     }
 
@@ -88,7 +88,7 @@ class UserCrudController extends AbstractCrudController
         return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
     }
 
-    private function hashPassword(): Closure
+    private function hashPassword(): \Closure
     {
         return function ($event) {
             $form = $event->getForm();
@@ -96,11 +96,13 @@ class UserCrudController extends AbstractCrudController
                 return;
             }
             $password = $form->get('password')->getData();
-            if ($password === null) {
+            if (null === $password) {
                 return;
             }
 
-            $hash = $this->userPasswordHasher->hashPassword($this->getUser(), $password);
+            /** @var PasswordAuthenticatedUserInterface $user */
+            $user = $this->getUser();
+            $hash = $this->userPasswordHasher->hashPassword($user, $password);
             $form->getData()->setPassword($hash);
         };
     }
