@@ -53,10 +53,16 @@ class HomeController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-list', Partner::class);
-        yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-list', Member::class);
-        yield MenuItem::linkToCrud('Liste des utilisateurs', 'fas fa-list', User::class)
+
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class);
+        yield MenuItem::linkToRoute('Liste des cartes', 'fa-solid fa-id-card', 'member_card_list');
+
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Liste des partenaires', 'fa-solid fa-shop', Partner::class);
+
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Liste des utilisateurs', 'fa-solid fa-user-gear', User::class)
             ->setPermission('ROLE_ADMIN');
-        yield MenuItem::linkToRoute('Liste des cartes', 'fas fa-pencil-alt', 'member_card_list');
     }
 }
