@@ -7,13 +7,15 @@
 
 <div class="example-wrapper">
     <h2>Bienvenue <b>à Switch in Reims</b></h2>
-    <h3>Adherents</h3>
-    {% for adherent in adherents %}
-    <p>{{adherent.nom}} {{adherent.prenom}}</p>
+    <h3>Adhérents</h3>
+    {% for member in unexpiredMembers %}
+        {# @var \App\Entity\Member member #}
+        <p>{{ member.fullName }}</p>
     {% endfor %}
-    <h3>Adherents Expirés</h3>
-    {% for adherent in adherentsExpires %}
-    <p>{{adherent.nom}} {{adherent.prenom}}</p>
+    <h3>Adhérents expirés</h3>
+    {% for member in expiredMembers %}
+        {# @var \App\Entity\Member memer #}
+        <p>{{ member.fullName }}</p>
     {% endfor %}
 </div>
 {% endblock %}
