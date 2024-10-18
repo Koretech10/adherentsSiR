@@ -21,11 +21,14 @@ class MemberRepository extends ServiceEntityRepository
      */
     public function getUnexpiredMembers(\DateTimeInterface $date): array
     {
-        return $this->createQueryBuilder('m')
+        /** @var array<Member> $unexpiredMembers */
+        $unexpiredMembers = $this->createQueryBuilder('m')
             ->andWhere('m.expirationDate >= :date')
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult();
+
+        return $unexpiredMembers;
     }
 
     /**
@@ -33,10 +36,13 @@ class MemberRepository extends ServiceEntityRepository
      */
     public function getExpiredMembers(\DateTimeInterface $date): array
     {
-        return $this->createQueryBuilder('m')
+        /** @var array<Member> $expiredMembers */
+        $expiredMembers = $this->createQueryBuilder('m')
             ->andWhere('m.expirationDate < :date')
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult();
+
+        return $expiredMembers;
     }
 }
