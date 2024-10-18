@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Adherent;
-use App\Entity\Partenaire;
+use App\Entity\Partner;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -55,7 +55,7 @@ class HomeController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-list', Partenaire::class);
+        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-list', Partner::class);
         yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-list', Adherent::class);
         yield MenuItem::linkToCrud('Liste des utilisateurs', 'fas fa-list', User::class)
             ->setPermission('ROLE_ADMIN');
