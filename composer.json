@@ -117,6 +117,10 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan-deprecation-rules": "^1.2",
+        "phpstan/phpstan-doctrine": "^1.5",
+        "phpstan/phpstan-strict-rules": "^1.6",
+        "phpstan/phpstan-symfony": "^1.4",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",
