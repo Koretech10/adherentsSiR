@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
@@ -38,6 +40,14 @@ class UserCrudController extends AbstractCrudController
             ->setDefaultSort(['username' => 'ASC'])
             ->setSearchFields(['id', 'username'])
             ->setPaginatorPageSize(60);
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->add(Crud::PAGE_NEW, Action::INDEX)
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
     public function configureFields(string $pageName): iterable
