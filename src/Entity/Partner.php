@@ -5,8 +5,15 @@ namespace App\Entity;
 use App\Repository\PartnerRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PartnerRepository::class)]
+#[UniqueEntity(
+    fields: ['name', 'address', 'postalCode', 'city'],
+    message: 'Ce partenaire existe déjà.',
+    errorPath: '',
+)]
 class Partner
 {
     #[ORM\Id]
@@ -15,18 +22,27 @@ class Partner
     private int $id;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private string $name;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private string $address;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\Regex(
+        pattern: '/^\d{5}$/i',
+        message: 'Le code postal doit être composé uniquement de 5 chiffres.'
+    )]
     private string $postalCode;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private string $city;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private string $offer;
 
     public function getId(): int
