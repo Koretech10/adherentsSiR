@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Member;
 use App\Repository\MemberRepository;
-use App\Service\ExporterService;
+use App\Service\Exporter\MemberExporter;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -125,7 +125,7 @@ class MemberCrudController extends AbstractCrudController
      * @throws ContainerExceptionInterface
      * @throws \LogicException
      */
-    public function exportToCsv(AdminContext $context, ExporterService $exporter): BinaryFileResponse
+    public function exportToCsv(AdminContext $context, MemberExporter $exporter): BinaryFileResponse
     {
         if (null === $context->getCrud()) {
             throw new \LogicException('Cannot get CRUD from context');
@@ -148,7 +148,7 @@ class MemberCrudController extends AbstractCrudController
         /** @var array<Member> $members */
         $members = $queryBuilder->getQuery()->getResult();
 
-        return $exporter->getMembersExportFile($members);
+        return $exporter->getFile($members);
     }
 
     public function exportToPdf(): Response
