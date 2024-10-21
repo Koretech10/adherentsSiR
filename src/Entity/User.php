@@ -4,10 +4,16 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity(
+    fields: 'username',
+    message: 'Cet utilisateur existe déjà.'
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -15,13 +21,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private int $id;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column]
+    #[Assert\NotBlank]
     private string $username;
 
     /**
      * @var array<string>
      */
     #[ORM\Column]
+    #[Assert\Choice(
+        choices: ['ROLE_USER', 'ROLE_ADMIN'],
+        min: 1,
+        message: 'Ce rôle n’est pas valide',
+        minMessage: 'Vous devez choisir au moins 1 rôle.',
+    )]
     private array $roles = [];
 
     #[ORM\Column]
