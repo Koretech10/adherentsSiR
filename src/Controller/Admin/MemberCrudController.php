@@ -4,26 +4,37 @@ namespace App\Controller\Admin;
 
 use App\Entity\Member;
 use App\Repository\MemberRepository;
+use App\Service\ExporterService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Psr\Container\ContainerExceptionInterface;
 use Symfony\Component\Asset\Exception\AssetNotFoundException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/member')]
 class MemberCrudController extends AbstractCrudController
 {
-    public function __construct(private readonly MemberRepository $memberRepository)
-    {
+    public function __construct(
+        private readonly MemberRepository $memberRepository,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -56,12 +67,29 @@ class MemberCrudController extends AbstractCrudController
             ->createAsGlobalAction()
             ->setCssClass('btn btn-info')
             ->linkToCrudAction('exportToPdf');
+        $exportToCsvAction = Action::new('exportToCsv', 'Exporter en CSV')
+            ->linkToUrl(function () {
+                $request = $this->requestStack->getCurrentRequest();
+
+                if (null === $request) {
+                    return '';
+                }
+
+                return $this->adminUrlGenerator
+                    ->setAll($request->query->all())
+                    ->setAction('exportToCsv')
+                    ->generateUrl();
+            })
+            ->setCssClass('btn btn-info')
+            ->setIcon('fa fa-download')
+            ->createAsGlobalAction();
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, $exportToPdfAction);
+            ->add(Crud::PAGE_INDEX, $exportToPdfAction)
+            ->add(Crud::PAGE_INDEX, $exportToCsvAction);
     }
 
     public function configureFields(string $pageName): iterable
@@ -90,6 +118,36 @@ class MemberCrudController extends AbstractCrudController
             ->add('birthDate')
             ->add('membershipDate')
             ->add(DateTimeFilter::new('expirationDate', 'Date d’expiration'));
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws \LogicException
+     */
+    public function exportToCsv(AdminContext $context, ExporterService $exporter): BinaryFileResponse
+    {
+        if (null === $context->getCrud()) {
+            throw new \LogicException('Cannot get CRUD from context');
+        }
+
+        if (null === $context->getSearch()) {
+            throw new \LogicException('Cannot get search from context');
+        }
+
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
+        /** @var FilterFactory $filterFactory */
+        $filterFactory = $this->container->get(FilterFactory::class);
+        $filters = $filterFactory->create(
+            $context->getCrud()->getFiltersConfig(),
+            $fields,
+            $context->getEntity()
+        );
+
+        $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
+        /** @var array<Member> $members */
+        $members = $queryBuilder->getQuery()->getResult();
+
+        return $exporter->getMembersExportFile($members);
     }
 
     public function exportToPdf(): Response
