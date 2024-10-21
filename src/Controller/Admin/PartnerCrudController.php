@@ -39,13 +39,11 @@ class PartnerCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        return [
-            TextField::new('name', 'Nom'),
-            TextField::new('address', 'Adresse'),
-            TextField::new('postalCode', 'Code postal'),
-            TextField::new('city', 'Ville'),
-            TextareaField::new('offer', 'Avantages'),
-        ];
+        yield TextField::new('name', 'Nom');
+        yield TextField::new('address', 'Adresse');
+        yield TextField::new('postalCode', 'Code postal');
+        yield TextField::new('city', 'Ville');
+        yield TextareaField::new('offer', 'Avantages');
     }
 
     public function configureFilters(Filters $filters): Filters
