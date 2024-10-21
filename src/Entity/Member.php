@@ -5,8 +5,15 @@ namespace App\Entity;
 use App\Repository\MemberRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MemberRepository::class)]
+#[UniqueEntity(
+    fields: ['lastName', 'firstName', 'nickname', 'birthDate'],
+    message: 'Cet adhérent existe déjà.',
+    errorPath: '',
+)]
 class Member
 {
     #[ORM\Id]
@@ -15,21 +22,27 @@ class Member
     private int $id;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private string $nickname;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private string $firstName;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private string $lastName;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\NotBlank]
     private \DateTimeImmutable $birthDate;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\NotBlank]
     private \DateTimeImmutable $membershipDate;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\NotBlank]
     private \DateTimeImmutable $expirationDate;
 
     #[ORM\Column(nullable: true)]
