@@ -66,21 +66,19 @@ class MemberCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        return [
-            ImageField::new('avatar', false)
-                ->setBasePath('img/avatar/')
-                ->hideOnForm(),
-            TextField::new('lastName', 'Nom'),
-            TextField::new('firstName', 'Prénom'),
-            TextField::new('nickname', 'Pseudo'),
-            DateField::new('birthDate', 'Date de naissance'),
-            DateField::new('membershipDate', 'Date d’adhésion'),
-            DateField::new('expirationDate', 'Date d’expiration')
-                ->hideWhenCreating(),
-            ImageField::new('avatar', 'Avatar')
-                ->setUploadDir('public/img/avatar/')
-                ->onlyOnForms(),
-        ];
+        yield ImageField::new('avatar', false)
+            ->setBasePath('img/avatar/')
+            ->hideOnForm();
+        yield TextField::new('lastName', 'Nom');
+        yield TextField::new('firstName', 'Prénom');
+        yield TextField::new('nickname', 'Pseudo');
+        yield DateField::new('birthDate', 'Date de naissance');
+        yield DateField::new('membershipDate', 'Date d’adhésion');
+        yield DateField::new('expirationDate', 'Date d’expiration')
+            ->hideWhenCreating();
+        yield ImageField::new('avatar', 'Avatar')
+            ->setUploadDir('public/img/avatar/')
+            ->onlyOnForms();
     }
 
     public function configureFilters(Filters $filters): Filters
