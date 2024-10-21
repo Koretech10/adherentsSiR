@@ -42,26 +42,24 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        return [
-            TextField::new('username', "Nom d'utilisateur"),
-            TextField::new('password')
-                ->setFormType(RepeatedType::class)
-                ->setFormTypeOptions([
-                    'type' => PasswordType::class,
-                    'invalid_message' => 'Les mots de passe doivent correspondre.',
-                    'first_options' => ['label' => 'Mot de passe'],
-                    'second_options' => ['label' => 'Répéter le mot de passe'],
-                    'required' => true,
-                    'mapped' => false,
-                ])
-                ->onlyOnForms(),
-            ChoiceField::new('roles', 'Rôles')
-                ->allowMultipleChoices()
-                ->setChoices([
-                    'Utilisateur' => 'ROLE_USER',
-                    'Administrateur' => 'ROLE_ADMIN',
-                ]),
-        ];
+        yield TextField::new('username', "Nom d'utilisateur");
+        yield TextField::new('password')
+            ->setFormType(RepeatedType::class)
+            ->setFormTypeOptions([
+                'type' => PasswordType::class,
+                'invalid_message' => 'Les mots de passe doivent correspondre.',
+                'first_options' => ['label' => 'Mot de passe'],
+                'second_options' => ['label' => 'Répéter le mot de passe'],
+                'required' => true,
+                'mapped' => false,
+            ])
+            ->onlyOnForms();
+        yield ChoiceField::new('roles', 'Rôles')
+            ->allowMultipleChoices()
+            ->setChoices([
+                'Utilisateur' => 'ROLE_USER',
+                'Administrateur' => 'ROLE_ADMIN',
+            ]);
     }
 
     public function configureFilters(Filters $filters): Filters
