@@ -66,6 +66,7 @@ class MemberCrudController extends AbstractCrudController
         $exportToPdfAction = Action::new('exportToPdf', 'Exporter en PDF')
             ->createAsGlobalAction()
             ->setCssClass('btn btn-info')
+            ->setIcon('fa fa-download')
             ->linkToCrudAction('exportToPdf');
         $exportToCsvAction = Action::new('exportToCsv', 'Exporter en CSV')
             ->linkToUrl(function () {
