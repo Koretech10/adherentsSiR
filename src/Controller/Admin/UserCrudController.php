@@ -52,7 +52,7 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield TextField::new('username', "Nom d'utilisateur");
+        yield TextField::new('username', 'Nom d’utilisateur');
         yield TextField::new('password')
             ->setFormType(RepeatedType::class)
             ->setFormTypeOptions([
