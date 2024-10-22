@@ -113,12 +113,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMember(?Member $member): static
     {
         // unset the owning side of the relation if necessary
-        if ($member === null && $this->member !== null) {
+        if (null === $member && null !== $this->member) {
             $this->member->setUser(null);
         }
 
         // set the owning side of the relation if necessary
-        if ($member !== null && $member->getUser() !== $this) {
+        if (null !== $member && $member->getUser() !== $this) {
             $member->setUser($this);
         }
 
@@ -135,12 +135,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPartner(?Partner $partner): static
     {
         // unset the owning side of the relation if necessary
-        if ($partner === null && $this->partner !== null) {
+        if (null === $partner && null !== $this->partner) {
             $this->partner->setUser(null);
         }
 
         // set the owning side of the relation if necessary
-        if ($partner !== null && $partner->getUser() !== $this) {
+        if (null !== $partner && $partner->getUser() !== $this) {
             $partner->setUser($this);
         }
 
