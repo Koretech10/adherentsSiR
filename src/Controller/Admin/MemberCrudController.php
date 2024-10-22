@@ -108,6 +108,7 @@ class MemberCrudController extends AbstractCrudController
             ->hideWhenCreating();
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
+            ->setUploadedFileNamePattern('[randomhash].[extension]')
             ->onlyOnForms();
     }
 
