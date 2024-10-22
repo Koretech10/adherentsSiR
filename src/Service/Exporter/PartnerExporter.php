@@ -33,6 +33,7 @@ class PartnerExporter extends ExporterService
             'Code postal',
             'Ville',
             'Avantages',
+            'Utilisateur associé',
         ];
     }
 
@@ -53,6 +54,7 @@ class PartnerExporter extends ExporterService
                 $partner->getPostalCode(),
                 $partner->getCity(),
                 $partner->getOffer(),
+                (string) $partner->getUser(),
             ];
         }
 
