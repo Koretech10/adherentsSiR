@@ -138,6 +138,15 @@ class Member
         return $this;
     }
 
+    public function getAvatarPath(): ?string
+    {
+        if (null === $this->avatar) {
+            return null;
+        }
+
+        return \sprintf('img/avatar/%s', $this->avatar);
+    }
+
     public function getFullName(): string
     {
         return \sprintf('%s %s', $this->lastName, $this->firstName);

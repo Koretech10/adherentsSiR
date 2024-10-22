@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Member;
 use App\Repository\MemberRepository;
 use App\Service\Exporter\MemberExporter;
+use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -107,6 +108,7 @@ class MemberCrudController extends AbstractCrudController
             ->hideWhenCreating();
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
+            ->setUploadedFileNamePattern('[randomhash].[extension]')
             ->onlyOnForms();
     }
 
@@ -119,6 +121,22 @@ class MemberCrudController extends AbstractCrudController
             ->add('birthDate')
             ->add('membershipDate')
             ->add(DateTimeFilter::new('expirationDate', 'Date d’expiration'));
+    }
+
+    /**
+     * @phpstan-ignore missingType.parameter
+     */
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        /** @var Member $member */
+        $member = $entityInstance;
+        $avatarPath = $member->getAvatarPath();
+
+        parent::deleteEntity($entityManager, $entityInstance);
+
+        if (null !== $avatarPath) {
+            \unlink($avatarPath);
+        }
     }
 
     /**
