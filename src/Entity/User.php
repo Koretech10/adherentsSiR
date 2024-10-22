@@ -29,12 +29,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string>
      */
     #[ORM\Column]
-    #[Assert\Choice(
-        choices: ['ROLE_USER', 'ROLE_ADMIN'],
-        min: 1,
-        message: 'Ce rôle n’est pas valide',
-        minMessage: 'Vous devez choisir au moins 1 rôle.',
-    )]
     private array $roles = [];
 
     #[ORM\Column]
