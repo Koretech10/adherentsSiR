@@ -51,6 +51,11 @@ class Member
     #[ORM\OneToOne(inversedBy: 'member', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
+    public function __toString(): string
+    {
+        return $this->getFullName();
+    }
+
     public function getId(): int
     {
         return $this->id;
