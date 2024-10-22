@@ -48,6 +48,9 @@ class Member
     #[ORM\Column(nullable: true)]
     private ?string $avatar = null;
 
+    #[ORM\OneToOne(inversedBy: 'member', cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
     public function getId(): int
     {
         return $this->id;
@@ -150,5 +153,17 @@ class Member
     public function getFullName(): string
     {
         return \sprintf('%s %s', $this->lastName, $this->firstName);
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

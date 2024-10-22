@@ -40,6 +40,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private string $password;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Member $member = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Partner $partner = null;
+
     public function getId(): int
     {
         return $this->id;
@@ -97,5 +103,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
+    }
+
+    public function getMember(): ?Member
+    {
+        return $this->member;
+    }
+
+    public function setMember(?Member $member): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($member === null && $this->member !== null) {
+            $this->member->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($member !== null && $member->getUser() !== $this) {
+            $member->setUser($this);
+        }
+
+        $this->member = $member;
+
+        return $this;
+    }
+
+    public function getPartner(): ?Partner
+    {
+        return $this->partner;
+    }
+
+    public function setPartner(?Partner $partner): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($partner === null && $this->partner !== null) {
+            $this->partner->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($partner !== null && $partner->getUser() !== $this) {
+            $partner->setUser($this);
+        }
+
+        $this->partner = $partner;
+
+        return $this;
     }
 }
