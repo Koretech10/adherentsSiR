@@ -6,6 +6,7 @@ use App\Entity\Member;
 use App\Repository\MemberRepository;
 use App\Service\Exporter\MemberExporter;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -16,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -106,6 +108,16 @@ class MemberCrudController extends AbstractCrudController
         yield DateField::new('membershipDate', 'Date d’adhésion');
         yield DateField::new('expirationDate', 'Date d’expiration')
             ->hideWhenCreating();
+        yield AssociationField::new('user', 'Utilisateur associé')
+            ->autocomplete()
+            ->setQueryBuilder(fn (QueryBuilder $queryBuilder) => $queryBuilder
+                // N'affiche que les utilisateurs non liés à des adhérents ou des partenaires
+                ->leftJoin('entity.partner', 'p')
+                ->leftJoin('entity.member', 'm')
+                ->andWhere('p.id IS NULL')
+                ->andWhere('m.id IS NULL')
+            )
+            ->setSortProperty('username');
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
             ->setUploadedFileNamePattern('[randomhash].[extension]')
