@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Service\Exporter\UserExporter;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -11,19 +13,27 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Psr\Container\ContainerExceptionInterface;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class UserCrudController extends AbstractCrudController
 {
-    public function __construct(private readonly UserPasswordHasherInterface $userPasswordHasher)
-    {
+    public function __construct(
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -44,10 +54,28 @@ class UserCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $exportToCsvAction = Action::new('exportToCsv', 'Exporter en CSV')
+            ->linkToUrl(function () {
+                $request = $this->requestStack->getCurrentRequest();
+
+                if (null === $request) {
+                    return '';
+                }
+
+                return $this->adminUrlGenerator
+                    ->setAll($request->query->all())
+                    ->setAction('exportToCsv')
+                    ->generateUrl();
+            })
+            ->setCssClass('btn btn-info')
+            ->setIcon('fa fa-download')
+            ->createAsGlobalAction();
+
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_NEW, Action::INDEX)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $exportToCsvAction);
     }
 
     public function configureFields(string $pageName): iterable
@@ -95,6 +123,36 @@ class UserCrudController extends AbstractCrudController
         $formBuilder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
 
         return $this->addPasswordEventListener($formBuilder);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws \LogicException
+     */
+    public function exportToCsv(AdminContext $context, UserExporter $exporter): BinaryFileResponse
+    {
+        if (null === $context->getCrud()) {
+            throw new \LogicException('Cannot get CRUD from context');
+        }
+
+        if (null === $context->getSearch()) {
+            throw new \LogicException('Cannot get search from context');
+        }
+
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
+        /** @var FilterFactory $filterFactory */
+        $filterFactory = $this->container->get(FilterFactory::class);
+        $filters = $filterFactory->create(
+            $context->getCrud()->getFiltersConfig(),
+            $fields,
+            $context->getEntity()
+        );
+
+        $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
+        /** @var array<User> $users */
+        $users = $queryBuilder->getQuery()->getResult();
+
+        return $exporter->getFile($users);
     }
 
     private function addPasswordEventListener(FormBuilderInterface $formBuilder): FormBuilderInterface
