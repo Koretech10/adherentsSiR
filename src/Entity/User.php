@@ -29,16 +29,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string>
      */
     #[ORM\Column]
-    #[Assert\Choice(
-        choices: ['ROLE_USER', 'ROLE_ADMIN'],
-        min: 1,
-        message: 'Ce rôle n’est pas valide',
-        minMessage: 'Vous devez choisir au moins 1 rôle.',
-    )]
     private array $roles = [];
 
     #[ORM\Column]
     private string $password;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Member $member = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Partner $partner = null;
+
+    public function __toString(): string
+    {
+        return $this->username;
+    }
 
     public function getId(): int
     {
@@ -97,5 +102,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
+    }
+
+    public function getMember(): ?Member
+    {
+        return $this->member;
+    }
+
+    public function setMember(?Member $member): static
+    {
+        // unset the owning side of the relation if necessary
+        if (null === $member && null !== $this->member) {
+            $this->member->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if (null !== $member && $member->getUser() !== $this) {
+            $member->setUser($this);
+        }
+
+        $this->member = $member;
+
+        return $this;
+    }
+
+    public function getPartner(): ?Partner
+    {
+        return $this->partner;
+    }
+
+    public function setPartner(?Partner $partner): static
+    {
+        // unset the owning side of the relation if necessary
+        if (null === $partner && null !== $this->partner) {
+            $this->partner->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if (null !== $partner && $partner->getUser() !== $this) {
+            $partner->setUser($this);
+        }
+
+        $this->partner = $partner;
+
+        return $this;
     }
 }

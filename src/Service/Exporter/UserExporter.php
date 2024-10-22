@@ -30,6 +30,8 @@ class UserExporter extends ExporterService
         return [
             'Nom d\'utilisateur',
             'Rôles',
+            'Adhérent lié',
+            'Partenaire lié',
         ];
     }
 
@@ -47,6 +49,8 @@ class UserExporter extends ExporterService
             $usersData[] = [
                 $user->getUsername(),
                 \implode(', ', $this->getRolesName($user->getRoles())),
+                (string) $user->getMember(),
+                (string) $user->getPartner(),
             ];
         }
 

@@ -2,7 +2,7 @@
 
 Table Member {
   id integer [pk, not null]
-  user "fk" [ref: > User.id, not null]
+  user "fk" [ref: - User.id, not null]
   nickname string [not null]
   firstName string [not null]
   lastName string [not null]
@@ -13,7 +13,7 @@ Table Member {
 }
 Table Partner {
   id integer [pk, not null]
-  user "fk" [ref: > User.id, not null]
+  user "fk" [ref: - User.id, not null]
   name string [not null]
   address string [not null]
   postalCode string [not null]

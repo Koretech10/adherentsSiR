@@ -34,6 +34,7 @@ class MemberExporter extends ExporterService
             'Date de naissance',
             'Date d\'adhésion',
             'Date d\'expiration',
+            'Utilisateur lié',
         ];
     }
 
@@ -55,6 +56,7 @@ class MemberExporter extends ExporterService
                 $member->getBirthDate()->format(self::FRENCH_FORMAT),
                 $member->getMembershipDate()->format(self::FRENCH_FORMAT),
                 $member->getExpirationDate()->format(self::FRENCH_FORMAT),
+                (string) $member->getUser(),
             ];
         }
 

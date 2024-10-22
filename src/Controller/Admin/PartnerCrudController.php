@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Partner;
 use App\Service\Exporter\PartnerExporter;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -12,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -77,6 +79,16 @@ class PartnerCrudController extends AbstractCrudController
         yield TextField::new('postalCode', 'Code postal');
         yield TextField::new('city', 'Ville');
         yield TextareaField::new('offer', 'Avantages');
+        yield AssociationField::new('user', 'Utilisateur associé')
+            ->autocomplete()
+            ->setQueryBuilder(fn (QueryBuilder $queryBuilder) => $queryBuilder
+                // N'affiche que les utilisateurs non liés à des adhérents ou des partenaires
+                ->leftJoin('entity.partner', 'p')
+                ->leftJoin('entity.member', 'm')
+                ->andWhere('p.id IS NULL')
+                ->andWhere('m.id IS NULL')
+            )
+            ->setSortProperty('username');
     }
 
     public function configureFilters(Filters $filters): Filters
