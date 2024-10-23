@@ -54,9 +54,10 @@ class HomeController extends AbstractDashboardController
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
-        /* @var User $user */
+        $avatarPath = $user instanceof User ? $user->getAvatarPath() : null;
+
         return parent::configureUserMenu($user)
-            ->setAvatarUrl($user->getAvatarPath());
+            ->setAvatarUrl($avatarPath);
     }
 
     public function configureMenuItems(): iterable
