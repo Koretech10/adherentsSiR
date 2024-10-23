@@ -118,10 +118,6 @@ class MemberCrudController extends AbstractCrudController
                 ->andWhere('m.id IS NULL')
             )
             ->setSortProperty('username');
-        yield ImageField::new('avatar', 'Avatar')
-            ->setUploadDir('public/img/avatar/')
-            ->setUploadedFileNamePattern('[randomhash].[extension]')
-            ->onlyOnForms();
     }
 
     public function configureFilters(Filters $filters): Filters
