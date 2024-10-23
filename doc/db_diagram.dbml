@@ -9,7 +9,6 @@ Table Member {
   birthDate date [not null]
   membershipDate date [not null]
   expirationDate date [not null]
-  avatar string
 }
 Table Partner {
   id integer [pk, not null]
@@ -25,4 +24,5 @@ Table User {
   username string [not null]
   roles array [not null]
   password string [not null]
+  avatar string
 }

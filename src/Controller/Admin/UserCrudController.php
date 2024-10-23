@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Service\Exporter\UserExporter;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -16,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Psr\Container\ContainerExceptionInterface;
@@ -81,6 +83,9 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        yield ImageField::new('avatar', false)
+            ->setBasePath('img/avatar/')
+            ->hideOnForm();
         yield TextField::new('username', 'Nom d’utilisateur');
         yield TextField::new('password')
             ->setFormType(RepeatedType::class)
@@ -103,6 +108,10 @@ class UserCrudController extends AbstractCrudController
             ->hideOnForm();
         yield AssociationField::new('partner', 'Partenaire lié')
             ->hideOnForm();
+        yield ImageField::new('avatar', 'Avatar')
+            ->setUploadDir('public/img/avatar/')
+            ->setUploadedFileNamePattern('[randomhash].[extension]')
+            ->onlyOnForms();
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -128,6 +137,22 @@ class UserCrudController extends AbstractCrudController
         $formBuilder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
 
         return $this->addPasswordEventListener($formBuilder);
+    }
+
+    /**
+     * @phpstan-ignore missingType.parameter
+     */
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        /** @var User $user */
+        $user = $entityInstance;
+        $avatarPath = $user->getAvatarPath();
+
+        parent::deleteEntity($entityManager, $entityInstance);
+
+        if (null !== $avatarPath) {
+            \unlink($avatarPath);
+        }
     }
 
     /**

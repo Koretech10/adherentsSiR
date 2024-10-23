@@ -118,10 +118,6 @@ class MemberCrudController extends AbstractCrudController
                 ->andWhere('m.id IS NULL')
             )
             ->setSortProperty('username');
-        yield ImageField::new('avatar', 'Avatar')
-            ->setUploadDir('public/img/avatar/')
-            ->setUploadedFileNamePattern('[randomhash].[extension]')
-            ->onlyOnForms();
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -133,22 +129,6 @@ class MemberCrudController extends AbstractCrudController
             ->add('birthDate')
             ->add('membershipDate')
             ->add(DateTimeFilter::new('expirationDate', 'Date d’expiration'));
-    }
-
-    /**
-     * @phpstan-ignore missingType.parameter
-     */
-    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        /** @var Member $member */
-        $member = $entityInstance;
-        $avatarPath = $member->getAvatarPath();
-
-        parent::deleteEntity($entityManager, $entityInstance);
-
-        if (null !== $avatarPath) {
-            \unlink($avatarPath);
-        }
     }
 
     /**
