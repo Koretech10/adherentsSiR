@@ -45,7 +45,7 @@ class Partner
     #[Assert\NotBlank]
     private string $offer;
 
-    #[ORM\OneToOne(inversedBy: 'partner', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'partner')]
     private ?User $user = null;
 
     public function __toString(): string

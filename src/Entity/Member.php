@@ -45,7 +45,7 @@ class Member
     #[Assert\NotBlank]
     private \DateTimeImmutable $expirationDate;
 
-    #[ORM\OneToOne(inversedBy: 'member', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'member')]
     private ?User $user = null;
 
     public function __toString(): string
