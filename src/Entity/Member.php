@@ -45,9 +45,6 @@ class Member
     #[Assert\NotBlank]
     private \DateTimeImmutable $expirationDate;
 
-    #[ORM\Column(nullable: true)]
-    private ?string $avatar = null;
-
     #[ORM\OneToOne(inversedBy: 'member', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
@@ -132,27 +129,6 @@ class Member
         $this->expirationDate = $expirationDate;
 
         return $this;
-    }
-
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): static
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    public function getAvatarPath(): ?string
-    {
-        if (null === $this->avatar) {
-            return null;
-        }
-
-        return \sprintf('img/avatar/%s', $this->avatar);
     }
 
     public function getFullName(): string
