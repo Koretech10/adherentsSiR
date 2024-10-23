@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Service\Exporter\UserExporter;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -135,6 +136,22 @@ class UserCrudController extends AbstractCrudController
         $formBuilder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
 
         return $this->addPasswordEventListener($formBuilder);
+    }
+
+    /**
+     * @phpstan-ignore missingType.parameter
+     */
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        /** @var User $user */
+        $user = $entityInstance;
+        $avatarPath = $user->getAvatarPath();
+
+        parent::deleteEntity($entityManager, $entityInstance);
+
+        if (null !== $avatarPath) {
+            \unlink($avatarPath);
+        }
     }
 
     /**
