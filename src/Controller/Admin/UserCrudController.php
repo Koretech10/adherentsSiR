@@ -97,7 +97,7 @@ class UserCrudController extends AbstractCrudController
                 'required' => true,
                 'mapped' => false,
             ])
-            ->onlyOnForms();
+            ->onlyWhenCreating();
         yield ChoiceField::new('roles', 'Rôles')
             ->allowMultipleChoices()
             ->setChoices([
