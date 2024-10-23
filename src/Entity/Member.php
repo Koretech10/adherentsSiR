@@ -153,9 +153,4 @@ class Member
         return $this->user?->getAvatar();
 
     }
-
-    public function getAvatarPath(): ?string
-    {
-        return $this->user?->getAvatarPath();
-    }
 }
