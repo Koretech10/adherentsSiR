@@ -132,22 +132,6 @@ class MemberCrudController extends AbstractCrudController
     }
 
     /**
-     * @phpstan-ignore missingType.parameter
-     */
-    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        /** @var Member $member */
-        $member = $entityInstance;
-        $avatarPath = $member->getAvatarPath();
-
-        parent::deleteEntity($entityManager, $entityInstance);
-
-        if (null !== $avatarPath) {
-            \unlink($avatarPath);
-        }
-    }
-
-    /**
      * @throws ContainerExceptionInterface
      * @throws \LogicException
      */
