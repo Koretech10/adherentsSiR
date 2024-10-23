@@ -147,4 +147,15 @@ class Member
 
         return $this;
     }
+
+    public function getAvatar(): ?string
+    {
+        return $this->user?->getAvatar();
+
+    }
+
+    public function getAvatarPath(): ?string
+    {
+        return $this->user?->getAvatarPath();
+    }
 }
