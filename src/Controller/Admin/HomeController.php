@@ -9,9 +9,11 @@ use App\Repository\MemberRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class HomeController extends AbstractDashboardController
 {
@@ -48,6 +50,13 @@ class HomeController extends AbstractDashboardController
             ->setDateFormat('dd/MM/yyyy')
             ->setDateTimeFormat('dd/MM/yyyy HH:mm:ss')
             ->setTimeFormat('HH:mm');
+    }
+
+    public function configureUserMenu(UserInterface $user): UserMenu
+    {
+        /* @var User $user */
+        return parent::configureUserMenu($user)
+            ->setAvatarUrl($user->getAvatarPath());
     }
 
     public function configureMenuItems(): iterable
