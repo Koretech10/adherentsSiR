@@ -81,6 +81,9 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        yield ImageField::new('avatar', false)
+            ->setBasePath('img/avatar/')
+            ->hideOnForm();
         yield TextField::new('username', 'Nom d’utilisateur');
         yield TextField::new('password')
             ->setFormType(RepeatedType::class)
@@ -103,6 +106,10 @@ class UserCrudController extends AbstractCrudController
             ->hideOnForm();
         yield AssociationField::new('partner', 'Partenaire lié')
             ->hideOnForm();
+        yield ImageField::new('avatar', 'Avatar')
+            ->setUploadDir('public/img/avatar/')
+            ->setUploadedFileNamePattern('[randomhash].[extension]')
+            ->onlyOnForms();
     }
 
     public function configureFilters(Filters $filters): Filters
