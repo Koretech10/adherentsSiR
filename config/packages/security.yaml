@@ -35,6 +35,31 @@ security:
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
 
+    role_hierarchy:
+        ROLE_MEMBER_CRUD:
+            - ROLE_MEMBER_CREATE
+            - ROLE_MEMBER_READ
+            - ROLE_MEMBER_UPDATE
+            - ROLE_MEMBER_DELETE
+
+        ROLE_PARTNER_CRUD:
+            - ROLE_PARTNER_CREATE
+            - ROLE_PARTNER_READ
+            - ROLE_PARTNER_UPDATE
+            - ROLE_PARTNER_DELETE
+
+        ROLE_USER_CRUD:
+            - ROLE_USER_CREATE
+            - ROLE_USER_READ
+            - ROLE_USER_UPDATE
+            - ROLE_USER_DELETE
+
+        # Les droits ADMIN doivent donner tous les droits ci-dessus
+        ROLE_ADMIN:
+            - ROLE_MEMBER_CRUD
+            - ROLE_PARTNER_CRUD
+            - ROLE_USER_CRUD
+
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
