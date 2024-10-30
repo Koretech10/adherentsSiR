@@ -103,7 +103,7 @@ class UserCrudController extends AbstractCrudController
             ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail'])
             ->setPermissions([
                 Action::INDEX => 'ROLE_USER_READ',
-                'exportToCsv' => 'ROLE_USER_READ',
+                'exportToCsv' => 'ROLE_USER_EXPORT',
                 Action::DETAIL => new Expression(self::IS_USER_OR_CAN_READ),
                 Action::NEW => 'ROLE_USER_CREATE',
                 Action::EDIT => new Expression(self::IS_USER_OR_CAN_UPDATE),
