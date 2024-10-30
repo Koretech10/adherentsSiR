@@ -169,7 +169,6 @@ class UserCrudController extends AbstractCrudController
 
         return $this->render('user/change_password.html.twig', [
             'form' => $form->createView(),
-            'user' => $entity->getInstance(),
             'referer' => $request->headers->get('referer'),
         ]);
     }
