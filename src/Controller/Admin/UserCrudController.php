@@ -22,12 +22,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Psr\Container\ContainerExceptionInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,6 +47,7 @@ class UserCrudController extends AbstractCrudController
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly RequestStack $requestStack,
+        private readonly Security $security,
     ) {
     }
 
@@ -104,6 +107,7 @@ class UserCrudController extends AbstractCrudController
                 Action::DETAIL => new Expression(self::IS_USER_OR_CAN_READ),
                 Action::NEW => 'ROLE_USER_CREATE',
                 Action::EDIT => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                Action::SAVE_AND_CONTINUE => new Expression(self::CAN_CREATE_OR_UPDATE),
                 'changePassword' => new Expression(self::IS_USER_OR_CAN_UPDATE),
                 'changePasswordDetail' => new Expression(self::IS_USER_OR_CAN_UPDATE),
                 Action::DELETE => 'ROLE_USER_DELETE',
@@ -159,6 +163,24 @@ class UserCrudController extends AbstractCrudController
         $formBuilder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
 
         return $this->addPasswordEventListener($formBuilder);
+    }
+
+    protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
+    {
+        /** @var array{ea: array{newForm: array{btn: string}}} $request
+         */
+        $request = $context->getRequest()->request->all();
+        $submitButtonName = $request['ea']['newForm']['btn'];
+
+        if ('saveAndReturn' === $submitButtonName && !$this->security->isGranted('ROLE_USER_UPDATE')) {
+            return $this->redirect($this->adminUrlGenerator
+                ->setAction(Action::DETAIL)
+                ->setEntityId($context->getEntity()->getPrimaryKeyValue())
+                ->generateUrl()
+            );
+        }
+
+        return parent::getRedirectResponseAfterSave($context, $action);
     }
 
     public function changePassword(AdminContext $context, Request $request, EntityManagerInterface $entityManager): Response
