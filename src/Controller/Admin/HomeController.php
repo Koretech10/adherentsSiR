@@ -6,6 +6,7 @@ use App\Entity\Member;
 use App\Entity\Partner;
 use App\Entity\User;
 use App\Repository\MemberRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -54,10 +55,16 @@ class HomeController extends AbstractDashboardController
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
-        $avatarPath = $user instanceof User ? $user->getAvatarPath() : null;
+        /** @var User $user */
+        $avatarPath = $user->getAvatarPath();
 
         return parent::configureUserMenu($user)
-            ->setAvatarUrl($avatarPath);
+            ->setAvatarUrl($avatarPath)
+            ->addMenuItems([
+                MenuItem::linkToCrud('Mon profil', 'fa fa-user', User::class)
+                    ->setAction(Action::DETAIL)
+                    ->setEntityId($user->getId()),
+            ]);
     }
 
     public function configureMenuItems(): iterable

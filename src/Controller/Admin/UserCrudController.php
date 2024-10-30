@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Form\ChangePasswordType;
 use App\Service\Exporter\UserExporter;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -26,7 +27,9 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -73,12 +76,21 @@ class UserCrudController extends AbstractCrudController
             ->setCssClass('btn btn-info')
             ->setIcon('fa fa-download')
             ->createAsGlobalAction();
+        $changePasswordAction = Action::new('changePassword', 'Changer le mot de passe')
+            ->linkToCrudAction('changePassword');
+        $changePasswordDetailAction = Action::new('changePasswordDetail', 'Changer le mot de passe')
+            ->linkToCrudAction('changePassword')
+            ->setCssClass('btn btn-primary');
 
         return $actions
-            ->add(Crud::PAGE_EDIT, Action::INDEX)
-            ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, $exportToCsvAction);
+            ->add(Crud::PAGE_INDEX, $exportToCsvAction)
+            ->add(Crud::PAGE_INDEX, $changePasswordAction)
+            ->add(Crud::PAGE_DETAIL, $changePasswordDetailAction)
+            ->add(Crud::PAGE_NEW, Action::INDEX)
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, 'changePassword'])
+            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -97,7 +109,7 @@ class UserCrudController extends AbstractCrudController
                 'required' => true,
                 'mapped' => false,
             ])
-            ->onlyOnForms();
+            ->onlyWhenCreating();
         yield ChoiceField::new('roles', 'Rôles')
             ->allowMultipleChoices()
             ->setChoices([
@@ -129,14 +141,36 @@ class UserCrudController extends AbstractCrudController
         return $this->addPasswordEventListener($formBuilder);
     }
 
-    public function createEditFormBuilder(
-        EntityDto $entityDto,
-        KeyValueStore $formOptions,
-        AdminContext $context,
-    ): FormBuilderInterface {
-        $formBuilder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
+    public function changePassword(AdminContext $context, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $entity = $context->getEntity();
+        if (null === $entity->getInstance() || !$entity->isAccessible()) {
+            throw new \LogicException('Entity not accessible');
+        }
 
-        return $this->addPasswordEventListener($formBuilder);
+        $form = $this->createForm(ChangePasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $user */
+            $user = $entity->getInstance();
+            /** @var string $plainPassword */
+            $plainPassword = $form->get('password')->getData();
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, $plainPassword));
+
+            $this->addFlash('success', 'Mot de passe modifié avec succès.');
+            $entityManager->flush();
+
+            return $this->redirect($this->adminUrlGenerator
+                ->setAction(Action::DETAIL)
+                ->setEntityId($user->getId())
+            );
+        }
+
+        return $this->render('user/change_password.html.twig', [
+            'form' => $form->createView(),
+            'referer' => $request->headers->get('referer'),
+        ]);
     }
 
     /**
