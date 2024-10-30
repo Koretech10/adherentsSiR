@@ -41,18 +41,21 @@ security:
             - ROLE_MEMBER_READ
             - ROLE_MEMBER_UPDATE
             - ROLE_MEMBER_DELETE
+            - ROLE_MEMBER_EXPORT
 
         ROLE_PARTNER_CRUD:
             - ROLE_PARTNER_CREATE
             - ROLE_PARTNER_READ
             - ROLE_PARTNER_UPDATE
             - ROLE_PARTNER_DELETE
+            - ROLE_PARTNER_EXPORT
 
         ROLE_USER_CRUD:
             - ROLE_USER_CREATE
             - ROLE_USER_READ
             - ROLE_USER_UPDATE
             - ROLE_USER_DELETE
+            - ROLE_USER_EXPORT
 
         # Les droits ADMIN doivent donner tous les droits ci-dessus
         ROLE_ADMIN:
