@@ -28,11 +28,4 @@ class ChangePasswordType extends AbstractType
             'label' => 'Changer le mot de passe',
         ]);
     }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => null,
-        ]);
-    }
 }
