@@ -22,6 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Psr\Container\ContainerExceptionInterface;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -35,6 +36,11 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class UserCrudController extends AbstractCrudController
 {
+    private const string CAN_CREATE_OR_UPDATE = 'is_granted("ROLE_USER_CREATE") or is_granted("ROLE_USER_UPDATE")';
+    private const string IS_USER_OR_HAS_ROLE_CRUD = 'is_granted("ROLE_USER_CRUD") or user === object';
+    private const string IS_USER_OR_CAN_READ = 'is_granted("ROLE_USER_READ") or user === object';
+    private const string IS_USER_OR_CAN_UPDATE = 'is_granted("ROLE_USER_UPDATE") or user === object';
+
     public function __construct(
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly AdminUrlGenerator $adminUrlGenerator,
@@ -55,6 +61,7 @@ class UserCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('utilisateurs')
             ->setDefaultSort(['username' => 'ASC'])
             ->setSearchFields(['id', 'username'])
+            ->setEntityPermission(new Expression(self::IS_USER_OR_HAS_ROLE_CRUD))
             ->setPaginatorPageSize(60);
     }
 
@@ -90,7 +97,17 @@ class UserCrudController extends AbstractCrudController
             ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, 'changePassword'])
-            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail']);
+            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail'])
+            ->setPermissions([
+                Action::INDEX => 'ROLE_USER_READ',
+                'exportToCsv' => 'ROLE_USER_READ',
+                Action::DETAIL => new Expression(self::IS_USER_OR_CAN_READ),
+                Action::NEW => 'ROLE_USER_CREATE',
+                Action::EDIT => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                'changePassword' => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                'changePasswordDetail' => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                Action::DELETE => 'ROLE_USER_DELETE',
+            ]);
     }
 
     public function configureFields(string $pageName): iterable
@@ -115,10 +132,13 @@ class UserCrudController extends AbstractCrudController
             ->setChoices([
                 'Utilisateur' => 'ROLE_USER',
                 'Administrateur' => 'ROLE_ADMIN',
-            ]);
+            ])
+            ->setPermission(new Expression(self::CAN_CREATE_OR_UPDATE));
         yield AssociationField::new('member', 'Adhérent lié')
+            ->setPermission('ROLE_USER_READ')
             ->hideOnForm();
         yield AssociationField::new('partner', 'Partenaire lié')
+            ->setPermission('ROLE_USER_READ')
             ->hideOnForm();
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
