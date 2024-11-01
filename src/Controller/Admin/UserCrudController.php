@@ -39,8 +39,8 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 class UserCrudController extends AbstractCrudController
 {
     private const string CAN_CREATE_OR_UPDATE = 'is_granted("ROLE_USER_CREATE") or is_granted("ROLE_USER_UPDATE")';
-    private const string IS_USER_OR_CAN_READ = 'is_granted("ROLE_USER_READ") or user === object';
-    private const string IS_USER_OR_CAN_UPDATE = 'is_granted("ROLE_USER_UPDATE") or user === object';
+    private const string IS_USER_OR_CAN_READ = 'user === object or is_granted("ROLE_USER_READ")';
+    private const string IS_USER_OR_CAN_UPDATE = 'user === object or is_granted("ROLE_USER_UPDATE")';
 
     public function __construct(
         private readonly UserPasswordHasherInterface $userPasswordHasher,
