@@ -69,16 +69,23 @@ class HomeController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home')
+            ->setPermission('ROLE_ADMIN');
 
-        yield MenuItem::section();
-        yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class);
-        yield MenuItem::linkToRoute('Liste des cartes', 'fa-solid fa-id-card', 'member_card_list');
+        yield MenuItem::section()
+            ->setPermission('ROLE_MEMBER_READ');
+        yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class)
+            ->setPermission('ROLE_MEMBER_READ');
+        yield MenuItem::linkToRoute('Liste des cartes', 'fa-solid fa-id-card', 'member_card_list')
+            ->setPermission('ROLE_ADMIN');
 
-        yield MenuItem::section();
-        yield MenuItem::linkToCrud('Liste des partenaires', 'fa-solid fa-shop', Partner::class);
+        yield MenuItem::section()
+            ->setPermission('ROLE_PARTNER_READ');
+        yield MenuItem::linkToCrud('Liste des partenaires', 'fa-solid fa-shop', Partner::class)
+            ->setPermission('ROLE_PARTNER_READ');
 
-        yield MenuItem::section();
+        yield MenuItem::section()
+            ->setPermission('ROLE_ADMIN');
         yield MenuItem::linkToCrud('Liste des utilisateurs', 'fa-solid fa-user-gear', User::class)
             ->setPermission('ROLE_ADMIN');
     }
