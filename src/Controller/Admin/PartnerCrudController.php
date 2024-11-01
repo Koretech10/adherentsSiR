@@ -96,7 +96,8 @@ class PartnerCrudController extends AbstractCrudController
                 ->andWhere('p.id IS NULL')
                 ->andWhere('m.id IS NULL')
             )
-            ->setSortProperty('username');
+            ->setSortProperty('username')
+            ->setPermission('ROLE_PARTNER_UPDATE');
     }
 
     public function configureFilters(Filters $filters): Filters
