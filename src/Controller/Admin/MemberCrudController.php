@@ -127,7 +127,7 @@ class MemberCrudController extends AbstractCrudController
                 ->andWhere('m.id IS NULL')
             )
             ->setSortProperty('username')
-            ->setPermission('ROLE_MEMBER_EDIT');
+            ->setPermission('ROLE_MEMBER_UPDATE');
     }
 
     public function configureFilters(Filters $filters): Filters
