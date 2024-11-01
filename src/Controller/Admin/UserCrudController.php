@@ -134,7 +134,8 @@ class UserCrudController extends AbstractCrudController
         yield ChoiceField::new('roles', 'Rôles')
             ->allowMultipleChoices()
             ->setChoices([
-                'Utilisateur' => 'ROLE_USER',
+                'Adhérent' => 'ROLE_MEMBER',
+                'Partenaire' => 'ROLE_PARTNER',
                 'Administrateur' => 'ROLE_ADMIN',
             ])
             ->setPermission(new Expression(self::CAN_CREATE_OR_UPDATE));
