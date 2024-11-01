@@ -69,7 +69,15 @@ class PartnerCrudController extends AbstractCrudController
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, $exportToCsvAction);
+            ->add(Crud::PAGE_INDEX, $exportToCsvAction)
+            ->setPermissions([
+                Action::INDEX => 'ROLE_PARTNER_READ',
+                'exportToCsv' => 'ROLE_PARTNER_EXPORT',
+                Action::DETAIL => 'ROLE_PARTNER_READ',
+                Action::NEW => 'ROLE_PARTNER_CREATE',
+                Action::EDIT => 'ROLE_PARTNER_UPDATE',
+                Action::DELETE => 'ROLE_PARTNER_DELETE',
+            ]);
     }
 
     public function configureFields(string $pageName): iterable
@@ -88,7 +96,8 @@ class PartnerCrudController extends AbstractCrudController
                 ->andWhere('p.id IS NULL')
                 ->andWhere('m.id IS NULL')
             )
-            ->setSortProperty('username');
+            ->setSortProperty('username')
+            ->setPermission('ROLE_PARTNER_UPDATE');
     }
 
     public function configureFilters(Filters $filters): Filters

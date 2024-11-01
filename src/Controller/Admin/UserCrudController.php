@@ -22,11 +22,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Psr\Container\ContainerExceptionInterface;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,10 +38,15 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class UserCrudController extends AbstractCrudController
 {
+    private const string CAN_CREATE_OR_UPDATE = 'is_granted("ROLE_USER_CREATE") or is_granted("ROLE_USER_UPDATE")';
+    private const string IS_USER_OR_CAN_READ = 'user === object or is_granted("ROLE_USER_READ")';
+    private const string IS_USER_OR_CAN_UPDATE = 'user === object or is_granted("ROLE_USER_UPDATE")';
+
     public function __construct(
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly RequestStack $requestStack,
+        private readonly Security $security,
     ) {
     }
 
@@ -90,7 +98,18 @@ class UserCrudController extends AbstractCrudController
             ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, 'changePassword'])
-            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail']);
+            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail'])
+            ->setPermissions([
+                Action::INDEX => 'ROLE_USER_READ',
+                'exportToCsv' => 'ROLE_USER_EXPORT',
+                Action::DETAIL => new Expression(self::IS_USER_OR_CAN_READ),
+                Action::NEW => 'ROLE_USER_CREATE',
+                Action::EDIT => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                Action::SAVE_AND_CONTINUE => new Expression(self::CAN_CREATE_OR_UPDATE),
+                'changePassword' => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                'changePasswordDetail' => new Expression(self::IS_USER_OR_CAN_UPDATE),
+                Action::DELETE => 'ROLE_USER_DELETE',
+            ]);
     }
 
     public function configureFields(string $pageName): iterable
@@ -113,12 +132,16 @@ class UserCrudController extends AbstractCrudController
         yield ChoiceField::new('roles', 'Rôles')
             ->allowMultipleChoices()
             ->setChoices([
-                'Utilisateur' => 'ROLE_USER',
+                'Adhérent' => 'ROLE_MEMBER',
+                'Partenaire' => 'ROLE_PARTNER',
                 'Administrateur' => 'ROLE_ADMIN',
-            ]);
+            ])
+            ->setPermission(new Expression(self::CAN_CREATE_OR_UPDATE));
         yield AssociationField::new('member', 'Adhérent lié')
+            ->setPermission('ROLE_USER_READ')
             ->hideOnForm();
         yield AssociationField::new('partner', 'Partenaire lié')
+            ->setPermission('ROLE_USER_READ')
             ->hideOnForm();
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
@@ -139,6 +162,24 @@ class UserCrudController extends AbstractCrudController
         $formBuilder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
 
         return $this->addPasswordEventListener($formBuilder);
+    }
+
+    protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
+    {
+        /** @var array{ea: array{newForm: array{btn: string}}} $request
+         */
+        $request = $context->getRequest()->request->all();
+        $submitButtonName = $request['ea']['newForm']['btn'];
+
+        if ('saveAndReturn' === $submitButtonName && !$this->security->isGranted('ROLE_USER_UPDATE')) {
+            return $this->redirect($this->adminUrlGenerator
+                ->setAction(Action::DETAIL)
+                ->setEntityId($context->getEntity()->getPrimaryKeyValue())
+                ->generateUrl()
+            );
+        }
+
+        return parent::getRedirectResponseAfterSave($context, $action);
     }
 
     public function changePassword(AdminContext $context, Request $request, EntityManagerInterface $entityManager): Response

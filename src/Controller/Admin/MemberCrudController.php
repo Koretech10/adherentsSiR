@@ -93,7 +93,16 @@ class MemberCrudController extends AbstractCrudController
             ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $exportToPdfAction)
-            ->add(Crud::PAGE_INDEX, $exportToCsvAction);
+            ->add(Crud::PAGE_INDEX, $exportToCsvAction)
+            ->setPermissions([
+                Action::INDEX => 'ROLE_MEMBER_READ',
+                'exportToPdf' => 'ROLE_MEMBER_EXPORT',
+                'exportToCsv' => 'ROLE_MEMBER_EXPORT',
+                Action::DETAIL => 'ROLE_MEMBER_READ',
+                Action::NEW => 'ROLE_MEMBER_CREATE',
+                Action::EDIT => 'ROLE_MEMBER_UPDATE',
+                Action::DELETE => 'ROLE_MEMBER_DELETE',
+            ]);
     }
 
     public function configureFields(string $pageName): iterable
@@ -117,7 +126,8 @@ class MemberCrudController extends AbstractCrudController
                 ->andWhere('p.id IS NULL')
                 ->andWhere('m.id IS NULL')
             )
-            ->setSortProperty('username');
+            ->setSortProperty('username')
+            ->setPermission('ROLE_MEMBER_UPDATE');
     }
 
     public function configureFilters(Filters $filters): Filters
