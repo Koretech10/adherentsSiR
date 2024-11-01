@@ -39,7 +39,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 class UserCrudController extends AbstractCrudController
 {
     private const string CAN_CREATE_OR_UPDATE = 'is_granted("ROLE_USER_CREATE") or is_granted("ROLE_USER_UPDATE")';
-    private const string IS_USER_OR_HAS_ROLE_CRUD = 'is_granted("ROLE_USER_CRUD") or user === object';
     private const string IS_USER_OR_CAN_READ = 'is_granted("ROLE_USER_READ") or user === object';
     private const string IS_USER_OR_CAN_UPDATE = 'is_granted("ROLE_USER_UPDATE") or user === object';
 
@@ -64,7 +63,6 @@ class UserCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('utilisateurs')
             ->setDefaultSort(['username' => 'ASC'])
             ->setSearchFields(['id', 'username'])
-            ->setEntityPermission(new Expression(self::IS_USER_OR_HAS_ROLE_CRUD))
             ->setPaginatorPageSize(60);
     }
 
