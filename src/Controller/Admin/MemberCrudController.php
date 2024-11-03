@@ -60,7 +60,8 @@ class MemberCrudController extends AbstractCrudController
                 'membershipDate',
                 'expirationDate',
             ])
-            ->setPaginatorPageSize(60);
+            ->setPaginatorPageSize(60)
+            ->overrideTemplate('crud/index', 'member/index.html.twig');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -87,7 +88,11 @@ class MemberCrudController extends AbstractCrudController
             ->setIcon('fa fa-download')
             ->createAsGlobalAction();
         $showCardAction = Action::new('showCard', 'Afficher la carte d’adhérent')
-            ->linkToCrudAction('showCard');
+            ->linkToCrudAction('showCard')
+            ->setHtmlAttributes([
+                'data-bs-toggle' => 'modal',
+                'data-bs-target' => '#modal-card',
+            ]);
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)

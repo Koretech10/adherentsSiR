@@ -1,0 +1,6 @@
+{% extends '@EasyAdmin/crud/index.html.twig' %}
+
+{% block delete_form %}
+    {{ parent() }}
+    {{ include('member/card_modal.html.twig') }}
+{% endblock %}
