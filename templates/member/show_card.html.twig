@@ -99,7 +99,9 @@
                         <p>EXPIRE LE {{ member.expirationDate|date('d/m/Y') }}</p>
                     </div>
                     <div class="row card-img">
-                        <img src="{{ asset(avatar) }}" class="img-pseudo" />
+                        {% if avatar %}
+                            <img src="{{ asset(avatar) }}" class="img-pseudo" />
+                        {% endif %}
                     </div>
                     <div class="row card-logo">
                         <img src="{{ asset('img/sir_logo_white.png') }}" class="img-logo" />

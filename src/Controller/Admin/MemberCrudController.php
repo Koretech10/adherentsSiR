@@ -216,11 +216,13 @@ class MemberCrudController extends AbstractCrudController
         if (null === $entity->getInstance() || !$entity->isAccessible()) {
             throw new \LogicException('Entity not accessible');
         }
+        /** @var Member $member */
         $member = $entity->getInstance();
+        $avatar = null === $member->getAvatar() ? null : \sprintf('img/avatar/%s', $member->getAvatar());
 
         return $this->render('member/show_card.html.twig', [
             'member' => $member,
-            'avatar' => \sprintf('img/avatar/%s', $member->getAvatar()),
+            'avatar' => $avatar,
         ]);
     }
 
