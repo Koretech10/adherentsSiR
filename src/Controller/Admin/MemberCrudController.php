@@ -196,8 +196,16 @@ class MemberCrudController extends AbstractCrudController
         return $exporter->getFile($members);
     }
 
-    public function exportToPdf(): Response
+    public function exportToPdf(AdminContext $context): Response
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'exportToPdf',
+            'entity' => null,
+            'entityFqcn' => Member::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         $members = $this->memberRepository->getUnexpiredMembers(new \DateTime());
         /** @var string $projectDir */
         $projectDir = $this->getParameter('kernel.project_dir');
