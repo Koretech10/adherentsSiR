@@ -70,6 +70,8 @@ class UserExporter extends ExporterService
             $rolesName[] = match ($role) {
                 'ROLE_USER' => 'Utilisateur',
                 'ROLE_ADMIN' => 'Administrateur',
+                'ROLE_MEMBER' => 'Adhérent',
+                'ROLE_PARTNER' => 'Partenaire',
                 default => $role,
             };
         }
