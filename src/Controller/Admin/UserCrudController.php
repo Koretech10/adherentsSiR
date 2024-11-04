@@ -186,6 +186,14 @@ class UserCrudController extends AbstractCrudController
 
     public function changePassword(AdminContext $context, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'changePassword',
+            'entity' => $context->getEntity(),
+            'entityFqcn' => User::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         $entity = $context->getEntity();
         if (null === $entity->getInstance() || !$entity->isAccessible()) {
             throw new \LogicException('Entity not accessible');
