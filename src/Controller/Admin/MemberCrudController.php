@@ -230,6 +230,14 @@ class MemberCrudController extends AbstractCrudController
 
     public function showCard(AdminContext $context): Response
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'showCard',
+            'entity' => $context->getEntity(),
+            'entityFqcn' => Member::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         $entity = $context->getEntity();
         if (null === $entity->getInstance() || !$entity->isAccessible()) {
             throw new \LogicException('Entity not accessible');
