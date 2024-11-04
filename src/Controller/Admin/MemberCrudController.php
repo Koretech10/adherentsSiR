@@ -5,13 +5,13 @@ namespace App\Controller\Admin;
 use App\Entity\Member;
 use App\Repository\MemberRepository;
 use App\Service\Exporter\MemberExporter;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
@@ -61,7 +61,8 @@ class MemberCrudController extends AbstractCrudController
                 'membershipDate',
                 'expirationDate',
             ])
-            ->setPaginatorPageSize(60);
+            ->setPaginatorPageSize(60)
+            ->overrideTemplate('crud/index', 'member/index.html.twig');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -87,6 +88,12 @@ class MemberCrudController extends AbstractCrudController
             ->setCssClass('btn btn-info')
             ->setIcon('fa fa-download')
             ->createAsGlobalAction();
+        $showCardAction = Action::new('showCard', 'Afficher la carte d’adhérent')
+            ->linkToCrudAction('showCard')
+            ->setHtmlAttributes([
+                'data-bs-toggle' => 'modal',
+                'data-bs-target' => '#modal-card',
+            ]);
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
@@ -94,10 +101,12 @@ class MemberCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $exportToPdfAction)
             ->add(Crud::PAGE_INDEX, $exportToCsvAction)
+            ->add(Crud::PAGE_INDEX, $showCardAction)
             ->setPermissions([
                 Action::INDEX => 'ROLE_MEMBER_READ',
                 'exportToPdf' => 'ROLE_MEMBER_EXPORT',
                 'exportToCsv' => 'ROLE_MEMBER_EXPORT',
+                'showCard' => 'ROLE_MEMBER_READ',
                 Action::DETAIL => 'ROLE_MEMBER_READ',
                 Action::NEW => 'ROLE_MEMBER_CREATE',
                 Action::EDIT => 'ROLE_MEMBER_UPDATE',
@@ -139,6 +148,12 @@ class MemberCrudController extends AbstractCrudController
             ->add('birthDate')
             ->add('membershipDate')
             ->add(DateTimeFilter::new('expirationDate', 'Date d’expiration'));
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addAssetMapperEntry('app');
     }
 
     /**
@@ -192,6 +207,22 @@ class MemberCrudController extends AbstractCrudController
         return new Response($dompdf->output(), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => \sprintf('attachment; filename="Liste_adherents_%s.pdf"', date('dmY_Hi')),
+        ]);
+    }
+
+    public function showCard(AdminContext $context): Response
+    {
+        $entity = $context->getEntity();
+        if (null === $entity->getInstance() || !$entity->isAccessible()) {
+            throw new \LogicException('Entity not accessible');
+        }
+        /** @var Member $member */
+        $member = $entity->getInstance();
+        $avatar = null === $member->getAvatar() ? null : \sprintf('img/avatar/%s', $member->getAvatar());
+
+        return $this->render('member/show_card.html.twig', [
+            'member' => $member,
+            'avatar' => $avatar,
         ]);
     }
 

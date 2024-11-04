@@ -76,8 +76,6 @@ class HomeController extends AbstractDashboardController
             ->setPermission('ROLE_MEMBER_READ');
         yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class)
             ->setPermission('ROLE_MEMBER_READ');
-        yield MenuItem::linkToRoute('Liste des cartes', 'fa-solid fa-id-card', 'member_card_list')
-            ->setPermission('ROLE_ADMIN');
 
         yield MenuItem::section()
             ->setPermission('ROLE_PARTNER_READ');
