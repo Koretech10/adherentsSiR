@@ -11,3 +11,15 @@
         </div>
     </div>
 </div>
+
+<script type="module">
+    import $ from 'jquery';
+
+    $(document).ready(function () {
+        $('.action-showCard').click(function () {
+            $.get($(this)[0].href, '', function (data) {
+               $('#modal-card-body').html(data)
+            });
+        });
+    });
+</script>

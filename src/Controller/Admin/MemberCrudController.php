@@ -11,6 +11,7 @@ use Dompdf\Options;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
@@ -147,6 +148,12 @@ class MemberCrudController extends AbstractCrudController
             ->add('birthDate')
             ->add('membershipDate')
             ->add(DateTimeFilter::new('expirationDate', 'Date d’expiration'));
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addAssetMapperEntry('app');
     }
 
     /**
