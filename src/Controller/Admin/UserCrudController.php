@@ -15,12 +15,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Security\Permission;
 use Psr\Container\ContainerExceptionInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -184,6 +186,14 @@ class UserCrudController extends AbstractCrudController
 
     public function changePassword(AdminContext $context, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'changePassword',
+            'entity' => $context->getEntity(),
+            'entityFqcn' => User::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         $entity = $context->getEntity();
         if (null === $entity->getInstance() || !$entity->isAccessible()) {
             throw new \LogicException('Entity not accessible');
@@ -236,6 +246,14 @@ class UserCrudController extends AbstractCrudController
      */
     public function exportToCsv(AdminContext $context, UserExporter $exporter): BinaryFileResponse
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'exportToCsv',
+            'entity' => null,
+            'entityFqcn' => User::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         if (null === $context->getCrud()) {
             throw new \LogicException('Cannot get CRUD from context');
         }
