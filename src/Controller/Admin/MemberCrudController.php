@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MemberCrudController extends AbstractCrudController
 {
-    private const array BUSINESS_CARD_SIZE = [30, 0, 226, 280];
+    private const array BUSINESS_CARD_SIZE = [0, 0, 157.91, 242.95];
 
     public function __construct(
         private readonly MemberRepository $memberRepository,
