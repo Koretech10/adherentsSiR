@@ -30,9 +30,7 @@ use Symfony\Component\Asset\Exception\AssetNotFoundException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/member')]
 class MemberCrudController extends AbstractCrudController
 {
     private const array BUSINESS_CARD_SIZE = [30, 0, 226, 280];
