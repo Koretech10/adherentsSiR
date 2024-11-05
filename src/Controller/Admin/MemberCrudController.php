@@ -27,14 +27,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Security\Permission;
 use Psr\Container\ContainerExceptionInterface;
 use Symfony\Component\Asset\Exception\AssetNotFoundException;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/member')]
 class MemberCrudController extends AbstractCrudController
 {
+    private const array BUSINESS_CARD_SIZE = [0, 0, 157.91, 242.95];
+    private const string IS_USER_OR_CAN_READ = 'user === object.getUser() or is_granted("ROLE_MEMBER_READ")';
+
     public function __construct(
         private readonly MemberRepository $memberRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
@@ -96,6 +98,8 @@ class MemberCrudController extends AbstractCrudController
                 'data-bs-toggle' => 'modal',
                 'data-bs-target' => '#modal-card',
             ]);
+        $exportCardAction = Action::new('exportCard', 'Télécharger la carte d’adhérent')
+            ->linkToCrudAction('exportCard');
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
@@ -104,11 +108,13 @@ class MemberCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $exportToPdfAction)
             ->add(Crud::PAGE_INDEX, $exportToCsvAction)
             ->add(Crud::PAGE_INDEX, $showCardAction)
+            ->add(Crud::PAGE_INDEX, $exportCardAction)
             ->setPermissions([
                 Action::INDEX => 'ROLE_MEMBER_READ',
                 'exportToPdf' => 'ROLE_MEMBER_EXPORT',
                 'exportToCsv' => 'ROLE_MEMBER_EXPORT',
                 'showCard' => 'ROLE_MEMBER_READ',
+                'exportCard' => new Expression(self::IS_USER_OR_CAN_READ),
                 Action::DETAIL => 'ROLE_MEMBER_READ',
                 Action::NEW => 'ROLE_MEMBER_CREATE',
                 Action::EDIT => 'ROLE_MEMBER_UPDATE',
@@ -249,6 +255,48 @@ class MemberCrudController extends AbstractCrudController
         return $this->render('member/show_card.html.twig', [
             'member' => $member,
             'avatar' => $avatar,
+        ]);
+    }
+
+    public function exportCard(AdminContext $context): Response
+    {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'exportCard',
+            'entity' => $context->getEntity(),
+            'entityFqcn' => Member::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
+        $entity = $context->getEntity();
+        if (null === $entity->getInstance() || !$entity->isAccessible()) {
+            throw new \LogicException('Entity not accessible');
+        }
+
+        /** @var string $projectDir */
+        $projectDir = $this->getParameter('kernel.project_dir');
+        /** @var Member $member */
+        $member = $entity->getInstance();
+        $avatar = null === $member->getAvatar() ? null : \sprintf(
+            '%s/public/img/avatar/%s',
+            $projectDir,
+            $member->getAvatar(),
+        );
+
+        $dompdf = new Dompdf();
+        $dompdf->setPaper(self::BUSINESS_CARD_SIZE, 'landscape');
+
+        $html = $this->renderView('member/export/card.html.twig', [
+            'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_white.png', $projectDir)),
+            'member' => $member,
+            'avatar' => null === $avatar ? null : $this->imageToBase64($avatar),
+        ]);
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="carte.pdf"',
         ]);
     }
 
