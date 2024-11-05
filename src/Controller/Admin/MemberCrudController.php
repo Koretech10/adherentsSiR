@@ -35,6 +35,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/member')]
 class MemberCrudController extends AbstractCrudController
 {
+    private const array BUSINESS_CARD_SIZE = [30, 0, 226, 280];
+
     public function __construct(
         private readonly MemberRepository $memberRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
@@ -96,6 +98,8 @@ class MemberCrudController extends AbstractCrudController
                 'data-bs-toggle' => 'modal',
                 'data-bs-target' => '#modal-card',
             ]);
+        $exportCardAction = Action::new('exportCard', 'Télécharger la carte d’adhérent')
+            ->linkToCrudAction('exportCard');
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
@@ -104,6 +108,7 @@ class MemberCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $exportToPdfAction)
             ->add(Crud::PAGE_INDEX, $exportToCsvAction)
             ->add(Crud::PAGE_INDEX, $showCardAction)
+            ->add(Crud::PAGE_INDEX, $exportCardAction)
             ->setPermissions([
                 Action::INDEX => 'ROLE_MEMBER_READ',
                 'exportToPdf' => 'ROLE_MEMBER_EXPORT',
@@ -249,6 +254,21 @@ class MemberCrudController extends AbstractCrudController
         return $this->render('member/show_card.html.twig', [
             'member' => $member,
             'avatar' => $avatar,
+        ]);
+    }
+
+    public function exportCard(AdminContext $context): Response
+    {
+        $dompdf = new Dompdf();
+        $dompdf->setPaper(self::BUSINESS_CARD_SIZE, 'landscape');
+
+        $html = $this->renderView('member/export/card.html.twig');
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="carte.pdf"',
         ]);
     }
 
