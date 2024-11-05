@@ -41,6 +41,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 class UserCrudController extends AbstractCrudController
 {
     private const string CAN_CREATE_OR_UPDATE = 'is_granted("ROLE_USER_CREATE") or is_granted("ROLE_USER_UPDATE")';
+    private const string IS_USER_MEMBER = '"ROLE_MEMBER" in object.getRoles()';
     private const string IS_USER_OR_CAN_READ = 'user === object or is_granted("ROLE_USER_READ")';
     private const string IS_USER_OR_CAN_UPDATE = 'user === object or is_granted("ROLE_USER_UPDATE")';
 
@@ -91,19 +92,30 @@ class UserCrudController extends AbstractCrudController
         $changePasswordDetailAction = Action::new('changePasswordDetail', 'Changer le mot de passe')
             ->linkToCrudAction('changePassword')
             ->setCssClass('btn btn-primary');
+        $downloadMemberCardAction = Action::new('downloadMemberCard', 'Télécharger la carte d’adhérent')
+            ->linkToUrl(function () {
+                return $this->adminUrlGenerator
+                    ->setController(MemberCrudController::class)
+                    ->setAction('exportCard')
+                    ->setEntityId($this->getContext()?->getEntity()->getInstance()?->getMember()?->getId())
+                    ->generateUrl();
+            })
+            ->setCssClass('btn btn-info');
 
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $exportToCsvAction)
             ->add(Crud::PAGE_INDEX, $changePasswordAction)
             ->add(Crud::PAGE_DETAIL, $changePasswordDetailAction)
+            ->add(Crud::PAGE_DETAIL, $downloadMemberCardAction)
             ->add(Crud::PAGE_NEW, Action::INDEX)
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, 'changePassword'])
-            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, Action::EDIT, 'changePasswordDetail'])
+            ->reorder(Crud::PAGE_DETAIL, [Action::DELETE, Action::INDEX, 'downloadMemberCard', Action::EDIT, 'changePasswordDetail'])
             ->setPermissions([
                 Action::INDEX => 'ROLE_USER_READ',
                 'exportToCsv' => 'ROLE_USER_EXPORT',
+                'downloadMemberCard' => new Expression(self::IS_USER_MEMBER),
                 Action::DETAIL => new Expression(self::IS_USER_OR_CAN_READ),
                 Action::NEW => 'ROLE_USER_CREATE',
                 Action::EDIT => new Expression(self::IS_USER_OR_CAN_UPDATE),

@@ -63,6 +63,8 @@ security:
             - ROLE_MEMBER_CRUD
             - ROLE_PARTNER_CRUD
             - ROLE_USER_CRUD
+            - ROLE_MEMBER
+            - ROLE_PARTNER
 
         ROLE_MEMBER:
             - ROLE_USER
