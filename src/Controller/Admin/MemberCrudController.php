@@ -277,6 +277,7 @@ class MemberCrudController extends AbstractCrudController
 
         $html = $this->renderView('member/export/card.html.twig', [
             'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_white.png', $projectDir)),
+            'member' => $member,
             'avatar' => null === $avatar ? null : $this->imageToBase64($avatar),
         ]);
         $dompdf->loadHtml($html);

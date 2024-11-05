@@ -74,13 +74,13 @@
                     <td colspan="2">&nbsp;</td>
                 </tr>
                 <tr>
-                    <td class="text-bold" colspan="2">Pseudo</td>
+                    <td class="text-bold" colspan="2">{{ member.nickname }}</td>
                 </tr>
                 <tr>
-                    <td colspan="2">Nom Prénom</td>
+                    <td colspan="2">{{ member.fullName }}</td>
                 </tr>
                 <tr>
-                    <td colspan="2">EXPIRE LE</td>
+                    <td colspan="2">EXPIRE LE {{ member.expirationDate | date('d/m/Y') }}</td>
                 </tr>
             </table>
         </div>
