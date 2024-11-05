@@ -27,14 +27,20 @@
                 margin: -10px 0 10px 10px;
             }
 
+            .avatar-img {
+                max-width: 110px;
+                max-height: 180px;
+            }
+
             .container {
                 background-color: red;
                 width: 321px; /** Fera 85 mm avec un dpi de 96 */
                 height: 208px; /** Fera 55 mm avec un dpi de 96 **/
             }
 
-            .text-center {
-                text-align: center;
+            .margin-auto {
+                padding: 0;
+                margin: auto;
             }
 
             .text-bold {
@@ -58,7 +64,11 @@
                         <img class="logo-img" src="{{ logo }}" />
                     </td>
                     <td>&nbsp;</td>
-                    <td class="text-center w-40" rowspan="5">Avatar</td>
+                    <td class="margin-auto w-40" rowspan="5">
+                        {% if avatar %}
+                            <img class="avatar-img" src="{{ avatar }}" />
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="2">&nbsp;</td>
