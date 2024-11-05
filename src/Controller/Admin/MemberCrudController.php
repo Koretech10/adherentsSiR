@@ -27,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Security\Permission;
 use Psr\Container\ContainerExceptionInterface;
 use Symfony\Component\Asset\Exception\AssetNotFoundException;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 class MemberCrudController extends AbstractCrudController
 {
     private const array BUSINESS_CARD_SIZE = [0, 0, 157.91, 242.95];
+    private const string IS_USER_OR_CAN_READ = 'user === object.getUser() or is_granted("ROLE_MEMBER_READ")';
 
     public function __construct(
         private readonly MemberRepository $memberRepository,
@@ -112,6 +114,7 @@ class MemberCrudController extends AbstractCrudController
                 'exportToPdf' => 'ROLE_MEMBER_EXPORT',
                 'exportToCsv' => 'ROLE_MEMBER_EXPORT',
                 'showCard' => 'ROLE_MEMBER_READ',
+                'exportCard' => new Expression(self::IS_USER_OR_CAN_READ),
                 Action::DETAIL => 'ROLE_MEMBER_READ',
                 Action::NEW => 'ROLE_MEMBER_CREATE',
                 Action::EDIT => 'ROLE_MEMBER_UPDATE',
@@ -257,6 +260,14 @@ class MemberCrudController extends AbstractCrudController
 
     public function exportCard(AdminContext $context): Response
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'exportCard',
+            'entity' => $context->getEntity(),
+            'entityFqcn' => Member::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         $entity = $context->getEntity();
         if (null === $entity->getInstance() || !$entity->isAccessible()) {
             throw new \LogicException('Entity not accessible');
