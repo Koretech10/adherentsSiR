@@ -257,10 +257,15 @@ class MemberCrudController extends AbstractCrudController
 
     public function exportCard(AdminContext $context): Response
     {
+        /** @var string $projectDir */
+        $projectDir = $this->getParameter('kernel.project_dir');
+
         $dompdf = new Dompdf();
         $dompdf->setPaper(self::BUSINESS_CARD_SIZE, 'landscape');
 
-        $html = $this->renderView('member/export/card.html.twig');
+        $html = $this->renderView('member/export/card.html.twig', [
+            'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_white.png', $projectDir)),
+        ]);
         $dompdf->loadHtml($html);
         $dompdf->render();
 

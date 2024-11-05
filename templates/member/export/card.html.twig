@@ -22,6 +22,11 @@
                 font-size: small;
             }
 
+            .logo-img {
+                height: 70px;
+                margin: -10px 0 10px 10px;
+            }
+
             .container {
                 background-color: red;
                 width: 321px; /** Fera 85 mm avec un dpi de 96 */
@@ -49,12 +54,11 @@
         <div class="container">
             <table>
                 <tr>
-                    <td class="w-30" rowspan="2">Logo SiR</td>
+                    <td class="w-30" rowspan="2">
+                        <img class="logo-img" src="{{ logo }}" />
+                    </td>
                     <td>&nbsp;</td>
-                    <td class="text-center w-40" rowspan="6">Avatar</td>
-                </tr>
-                <tr>
-                    <td>&nbsp;</td>
+                    <td class="text-center w-40" rowspan="5">Avatar</td>
                 </tr>
                 <tr>
                     <td colspan="2">&nbsp;</td>
