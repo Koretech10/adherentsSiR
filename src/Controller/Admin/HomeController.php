@@ -7,6 +7,7 @@ use App\Entity\Partner;
 use App\Entity\User;
 use App\Repository\MemberRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -36,13 +37,8 @@ class HomeController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('<img 
-                class="img-responsive d-flex mx-auto" 
-                height="150px" 
-                alt="Adhérents Switch In Reims" 
-                src="img/sir_logo_red.png" 
-            />')
-            ->setFaviconPath('img/favicon.ico');
+            ->setTitle('<img class="d-flex mx-auto menu-logo" src="img/sir_logo_red.png" alt="Adhérents Switch In Reims" />')
+            ->setFaviconPath('favicon.ico');
     }
 
     public function configureCrud(): Crud
@@ -86,5 +82,10 @@ class HomeController extends AbstractDashboardController
             ->setPermission('ROLE_ADMIN');
         yield MenuItem::linkToCrud('Liste des utilisateurs', 'fa-solid fa-user-gear', User::class)
             ->setPermission('ROLE_ADMIN');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return Assets::new()->addAssetMapperEntry('logo');
     }
 }
