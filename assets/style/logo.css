@@ -1,0 +1,10 @@
+/* Affiche une plus petite version du logo si la page est passée en mode responsive (en-dessous de 992px de largeur) */
+.menu-logo {
+    height: 50px;
+}
+
+@media (min-width: 992px) {
+    .menu-logo {
+        height: 150px;
+    }
+}
