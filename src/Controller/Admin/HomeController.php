@@ -38,7 +38,7 @@ class HomeController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('<img class="d-flex mx-auto menu-logo" src="img/sir_logo_red.png" alt="Adhérents Switch In Reims" />')
-            ->setFaviconPath('img/favicon.ico');
+            ->setFaviconPath('favicon.ico');
     }
 
     public function configureCrud(): Crud
