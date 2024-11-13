@@ -310,6 +310,9 @@ class MemberCrudController extends AbstractCrudController
 
     public function exportCards(BatchActionDto $batchActionDto): Response
     {
+        /** @var string $projectDir */
+        $projectDir = $this->getParameter('kernel.project_dir');
+
         $members = new ArrayCollection();
         foreach ($batchActionDto->getEntityIds() as $id) {
             $member = $this->memberRepository->findOneBy(['id' => $id]);
@@ -318,10 +321,32 @@ class MemberCrudController extends AbstractCrudController
                 throw new EntityNotFoundException(\sprintf('Member %s not found', $id));
             }
 
-            $members->add($member);
+            $avatar = null === $member->getAvatar() ? null : \sprintf(
+                '%s/public/img/avatar/%s',
+                $projectDir,
+                $member->getAvatar(),
+            );
+
+            $members->add([
+                'entity' => $member,
+                'avatar' => null === $avatar ? null : $this->imageToBase64($avatar),
+            ]);
         }
 
-        return $this->render('member/export/cards.html.twig');
+        $dompdf = new Dompdf();
+        $dompdf->setPaper('A4');
+
+        $html = $this->renderView('member/export/cards.html.twig', [
+            'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_white.png', $projectDir)),
+            'members' => $members,
+        ]);
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="cartes.pdf"',
+        ]);
     }
 
     private function imageToBase64(string $path): string
