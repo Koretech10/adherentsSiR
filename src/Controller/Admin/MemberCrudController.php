@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Entity\Member;
 use App\Repository\MemberRepository;
 use App\Service\Exporter\MemberExporter;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -16,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
 use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -100,6 +103,9 @@ class MemberCrudController extends AbstractCrudController
             ]);
         $exportCardAction = Action::new('exportCard', 'Télécharger la carte d’adhérent')
             ->linkToCrudAction('exportCard');
+        $exportCardsAction = Action::new('exportCards', 'Télécharger les cartes d’adhérents')
+            ->linkToCrudAction('exportCards')
+            ->setCssClass('btn btn-info');
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
@@ -109,12 +115,14 @@ class MemberCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $exportToCsvAction)
             ->add(Crud::PAGE_INDEX, $showCardAction)
             ->add(Crud::PAGE_INDEX, $exportCardAction)
+            ->addBatchAction($exportCardsAction)
             ->setPermissions([
                 Action::INDEX => 'ROLE_MEMBER_READ',
                 'exportToPdf' => 'ROLE_MEMBER_EXPORT',
                 'exportToCsv' => 'ROLE_MEMBER_EXPORT',
                 'showCard' => 'ROLE_MEMBER_READ',
                 'exportCard' => new Expression(self::IS_USER_OR_CAN_READ),
+                'exportCards' => 'ROLE_MEMBER_EXPORT',
                 Action::DETAIL => 'ROLE_MEMBER_READ',
                 Action::NEW => 'ROLE_MEMBER_CREATE',
                 Action::EDIT => 'ROLE_MEMBER_UPDATE',
@@ -298,6 +306,22 @@ class MemberCrudController extends AbstractCrudController
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="carte.pdf"',
         ]);
+    }
+
+    public function exportCards(BatchActionDto $batchActionDto): Response
+    {
+        $members = new ArrayCollection();
+        foreach ($batchActionDto->getEntityIds() as $id) {
+            $member = $this->memberRepository->findOneBy(['id' => $id]);
+
+            if (null === $member) {
+                throw new EntityNotFoundException(\sprintf('Member %s not found', $id));
+            }
+
+            $members->add($member);
+        }
+
+        return $this->render('member/export/cards.html.twig');
     }
 
     private function imageToBase64(string $path): string
