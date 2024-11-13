@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Dompdf\Dompdf;
-use Dompdf\Options;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -293,8 +292,16 @@ class MemberCrudController extends AbstractCrudController
         return $this->generatePdf($html, 'carte', self::BUSINESS_CARD_SIZE, 'landscape');
     }
 
-    public function exportCards(BatchActionDto $batchActionDto): Response
+    public function exportCards(BatchActionDto $batchActionDto, AdminContext $context): Response
     {
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => 'exportCards',
+            'entity' => $context->getEntity(),
+            'entityFqcn' => Member::class,
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
         $members = new ArrayCollection();
         foreach ($batchActionDto->getEntityIds() as $id) {
             $member = $this->memberRepository->findOneBy(['id' => $id]);
