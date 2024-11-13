@@ -111,7 +111,10 @@ class MemberCrudController extends AbstractCrudController
             ->linkToCrudAction('exportCard');
         $exportCardsAction = Action::new('exportCards', 'Télécharger les cartes d’adhérents')
             ->linkToCrudAction('exportCards')
-            ->setCssClass('btn btn-info');
+            ->setCssClass('btn btn-info')
+            ->setHtmlAttributes([
+                'data-action-no-modal' => true,
+            ]);
 
         return $actions
             ->add(Crud::PAGE_EDIT, Action::INDEX)
