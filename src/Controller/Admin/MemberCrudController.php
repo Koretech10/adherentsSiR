@@ -125,6 +125,7 @@ class MemberCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $showCardAction)
             ->add(Crud::PAGE_INDEX, $exportCardAction)
             ->addBatchAction($exportCardsAction)
+            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, 'showCard', 'exportCard'])
             ->setPermissions([
                 Action::INDEX => 'ROLE_MEMBER_READ',
                 'exportToPdf' => 'ROLE_MEMBER_EXPORT',
