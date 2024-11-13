@@ -34,17 +34,24 @@ use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class MemberCrudController extends AbstractCrudController
 {
     private const array BUSINESS_CARD_SIZE = [0, 0, 157.91, 242.95];
     private const string IS_USER_OR_CAN_READ = 'user === object.getUser() or is_granted("ROLE_MEMBER_READ")';
 
+    private string $projectDir;
+    private string $logoPath;
+
     public function __construct(
         private readonly MemberRepository $memberRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly RequestStack $requestStack,
+        KernelInterface $kernel,
     ) {
+        $this->projectDir = $kernel->getProjectDir();
+        $this->logoPath = \sprintf('%s/public/img/sir_logo_white.png', $this->projectDir);
     }
 
     public static function getEntityFqcn(): string
@@ -221,25 +228,18 @@ class MemberCrudController extends AbstractCrudController
         }
 
         $members = $this->memberRepository->getUnexpiredMembers(new \DateTime());
-        /** @var string $projectDir */
-        $projectDir = $this->getParameter('kernel.project_dir');
-
-        $pdfOptions = new Options();
-        $pdfOptions->set('defaultFont', 'Helvetica');
-        $dompdf = new Dompdf($pdfOptions);
-        $dompdf->setPaper('A3', 'landscape');
 
         $html = $this->renderView('member/export/pdf.html.twig', [
             'members' => $members,
-            'logo' => $this->imageToBase64(\sprintf('%s/public/img/favicon.ico', $projectDir)),
+            'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_red.png', $this->projectDir)),
         ]);
-        $dompdf->loadHtml($html);
-        $dompdf->render();
 
-        return new Response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => \sprintf('attachment; filename="Liste_adherents_%s.pdf"', date('dmY_Hi')),
-        ]);
+        return $this->generatePdf(
+            $html,
+            \sprintf('Liste_adherents_%s', date('dmY_Hi')),
+            'A3',
+            'landscape'
+        );
     }
 
     public function showCard(AdminContext $context): Response
@@ -281,38 +281,20 @@ class MemberCrudController extends AbstractCrudController
             throw new \LogicException('Entity not accessible');
         }
 
-        /** @var string $projectDir */
-        $projectDir = $this->getParameter('kernel.project_dir');
         /** @var Member $member */
         $member = $entity->getInstance();
-        $avatar = null === $member->getAvatar() ? null : \sprintf(
-            '%s/public/img/avatar/%s',
-            $projectDir,
-            $member->getAvatar(),
-        );
-
-        $dompdf = new Dompdf();
-        $dompdf->setPaper(self::BUSINESS_CARD_SIZE, 'landscape');
 
         $html = $this->renderView('member/export/card.html.twig', [
-            'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_white.png', $projectDir)),
+            'logo' => $this->imageToBase64($this->logoPath),
             'member' => $member,
-            'avatar' => null === $avatar ? null : $this->imageToBase64($avatar),
+            'avatar' => $this->imageToBase64($this->getAvatarPath($member)),
         ]);
-        $dompdf->loadHtml($html);
-        $dompdf->render();
 
-        return new Response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="carte.pdf"',
-        ]);
+        return $this->generatePdf($html, 'carte', self::BUSINESS_CARD_SIZE, 'landscape');
     }
 
     public function exportCards(BatchActionDto $batchActionDto): Response
     {
-        /** @var string $projectDir */
-        $projectDir = $this->getParameter('kernel.project_dir');
-
         $members = new ArrayCollection();
         foreach ($batchActionDto->getEntityIds() as $id) {
             $member = $this->memberRepository->findOneBy(['id' => $id]);
@@ -321,36 +303,52 @@ class MemberCrudController extends AbstractCrudController
                 throw new EntityNotFoundException(\sprintf('Member %s not found', $id));
             }
 
-            $avatar = null === $member->getAvatar() ? null : \sprintf(
-                '%s/public/img/avatar/%s',
-                $projectDir,
-                $member->getAvatar(),
-            );
-
             $members->add([
                 'entity' => $member,
-                'avatar' => null === $avatar ? null : $this->imageToBase64($avatar),
+                'avatar' => $this->imageToBase64($this->getAvatarPath($member)),
             ]);
         }
 
-        $dompdf = new Dompdf();
-        $dompdf->setPaper('A4');
-
         $html = $this->renderView('member/export/cards.html.twig', [
-            'logo' => $this->imageToBase64(\sprintf('%s/public/img/sir_logo_white.png', $projectDir)),
+            'logo' => $this->imageToBase64($this->logoPath),
             'members' => $members,
         ]);
-        $dompdf->loadHtml($html);
-        $dompdf->render();
 
-        return new Response($dompdf->output(), 200, [
+        return $this->generatePdf($html, 'cartes', 'A4');
+    }
+
+    private function getAvatarPath(Member $member): ?string
+    {
+        return null === $member->getAvatar() ? null : \sprintf(
+            '%s/public/img/avatar/%s',
+            $this->projectDir,
+            $member->getAvatar(),
+        );
+    }
+
+    /**
+     * @param array<float>|string $size
+     */
+    private function generatePdf(string $renderedHtml, string $name, array|string $size, string $orientation = 'portrait'): Response
+    {
+        $domPdf = new Dompdf();
+        $domPdf->setPaper($size, $orientation);
+
+        $domPdf->loadHtml($renderedHtml);
+        $domPdf->render();
+
+        return new Response($domPdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="cartes.pdf"',
+            'Content-Disposition' => \sprintf('attachment; filename="%s.pdf"', $name),
         ]);
     }
 
-    private function imageToBase64(string $path): string
+    private function imageToBase64(?string $path): ?string
     {
+        if (null === $path) {
+            return null;
+        }
+
         $path = $path;
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
