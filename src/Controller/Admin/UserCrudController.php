@@ -153,7 +153,11 @@ class UserCrudController extends AbstractCrudController
             ->setPermission(new Expression(self::CAN_CREATE_OR_UPDATE));
         yield AssociationField::new('member', 'Adhérent lié')
             ->setPermission('ROLE_USER_READ')
-            ->hideOnForm();
+            ->onlyOnIndex();
+        yield AssociationField::new('member', 'Adhérent lié')
+            ->setPermission('ROLE_MEMBER')
+            ->setTemplatePath('user/fields/member.html.twig')
+            ->onlyOnDetail();
         yield AssociationField::new('partner', 'Partenaire lié')
             ->setPermission('ROLE_USER_READ')
             ->hideOnForm();
