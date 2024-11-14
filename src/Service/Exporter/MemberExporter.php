@@ -28,6 +28,7 @@ class MemberExporter extends ExporterService
     private function getHeaders(): array
     {
         return [
+            'Identifiant',
             'Nom',
             'Prénom',
             'Pseudo',
@@ -50,6 +51,7 @@ class MemberExporter extends ExporterService
         foreach ($members as $member) {
             /* @var Member $member */
             $membersData[] = [
+                $member->getId(),
                 $member->getLastName(),
                 $member->getFirstName(),
                 $member->getNickname(),

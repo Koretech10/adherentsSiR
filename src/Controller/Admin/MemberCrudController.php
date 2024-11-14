@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -144,6 +145,8 @@ class MemberCrudController extends AbstractCrudController
     {
         yield ImageField::new('avatar', false)
             ->setBasePath('img/avatar/')
+            ->hideOnForm();
+        yield NumberField::new('id', 'Identifiant')
             ->hideOnForm();
         yield TextField::new('lastName', 'Nom');
         yield TextField::new('firstName', 'Prénom');

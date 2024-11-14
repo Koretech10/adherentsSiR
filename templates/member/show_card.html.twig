@@ -94,7 +94,7 @@
             <div class="card-inner">
                 <div class="front">
                     <div class="row card-info">
-                        <p><b>{{ member.nickname }}</b></p>
+                        <p><b>{{ member.nickname }} (#{{ member.id }})</b></p>
                         <p>{{ member.firstName }} {{ member.lastName|capitalize }}</p>
                         <p>EXPIRE LE {{ member.expirationDate|date('d/m/Y') }}</p>
                     </div>
