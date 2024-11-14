@@ -160,7 +160,11 @@ class UserCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield AssociationField::new('partner', 'Partenaire lié')
             ->setPermission('ROLE_USER_READ')
-            ->hideOnForm();
+            ->onlyOnIndex();
+        yield AssociationField::new('partner', 'Partenaire lié')
+            ->setPermission('ROLE_PARTNER')
+            ->setTemplatePath('user/fields/partner.html.twig')
+            ->onlyOnDetail();
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
             ->setUploadedFileNamePattern('[randomhash].[extension]')
