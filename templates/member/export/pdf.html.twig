@@ -63,6 +63,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th class="text-center col-d">Identifiant</th>
                         <th class="text-center col-d">Nom</th>
                         <th class="text-center col-d">Prénom</th>
                         <th class="text-center col-d">Date d'expiration</th>
@@ -72,6 +73,7 @@
                     {% for member in members %}
                         {# @var \App\Entity\Member member #}
                         <tr class="text-right">
+                            <td class="col-d" nowrap>{{ member.id }}</td>
                             <td class="col-d" nowrap>{{ member.lastName }}</td>
                             <td class="col-d" nowrap>{{ member.firstName }}</td>
                             <td class="col-d" nowrap>{{ member.expirationDate|date('d/m/Y') }}</td>
