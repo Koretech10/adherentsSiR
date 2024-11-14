@@ -51,7 +51,7 @@ class MemberExporter extends ExporterService
         foreach ($members as $member) {
             /* @var Member $member */
             $membersData[] = [
-                $member->getId(),
+                (string) $member->getId(),
                 $member->getLastName(),
                 $member->getFirstName(),
                 $member->getNickname(),
