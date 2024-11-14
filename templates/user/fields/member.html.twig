@@ -2,34 +2,38 @@
 {# @var member \App\Entity\Member #}
 {% set member = entity.instance.member %}
 
-<br />
-<div class="row">
-    <div class="field-group field-value">
-        <div class="field-label">Identifiant</div>
-        <div class="field-value">{{ member.id }}</div>
+{% if member is null %}
+    <span class="badge badge-outline">Aucun(e)</span>
+{% else %}
+    <br />
+    <div class="row">
+        <div class="field-group field-value">
+            <div class="field-label">Identifiant</div>
+            <div class="field-value">{{ member.id }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Nom</div>
+            <div class="field-value">{{ member.lastName }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Prénom</div>
+            <div class="field-value">{{ member.firstName }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Pseudo</div>
+            <div class="field-value">{{ member.nickname }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Date de naissance</div>
+            <div class="field-value">{{ member.birthDate | date('d/m/Y') }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Date d’adhésion</div>
+            <div class="field-value">{{ member.membershipDate | date('d/m/Y') }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Date d'expiration</div>
+            <div class="field-value">{{ member.expirationDate | date('d/m/Y') }}</div>
+        </div>
     </div>
-    <div class="field-group field-value">
-        <div class="field-label">Nom</div>
-        <div class="field-value">{{ member.lastName }}</div>
-    </div>
-    <div class="field-group field-value">
-        <div class="field-label">Prénom</div>
-        <div class="field-value">{{ member.firstName }}</div>
-    </div>
-    <div class="field-group field-value">
-        <div class="field-label">Pseudo</div>
-        <div class="field-value">{{ member.nickname }}</div>
-    </div>
-    <div class="field-group field-value">
-        <div class="field-label">Date de naissance</div>
-        <div class="field-value">{{ member.birthDate | date('d/m/Y') }}</div>
-    </div>
-    <div class="field-group field-value">
-        <div class="field-label">Date d’adhésion</div>
-        <div class="field-value">{{ member.membershipDate | date('d/m/Y') }}</div>
-    </div>
-    <div class="field-group field-value">
-        <div class="field-label">Date d'expiration</div>
-        <div class="field-value">{{ member.expirationDate | date('d/m/Y') }}</div>
-    </div>
-</div>
+{% endif %}
