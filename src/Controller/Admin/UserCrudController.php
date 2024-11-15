@@ -62,6 +62,9 @@ class UserCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des utilisateurs')
+            ->setPageTitle(Crud::PAGE_DETAIL, fn (User $user) => \sprintf('Utilisateur "%s"', $user))
+            ->setPageTitle(Crud::PAGE_NEW, 'Créer un nouvel utilisateur')
+            ->setPageTitle(Crud::PAGE_EDIT, fn (User $user) => \sprintf('Modifier utilisateur "%s"', $user))
             ->setEntityLabelInSingular('utilisateur')
             ->setEntityLabelInPlural('utilisateurs')
             ->setDefaultSort(['username' => 'ASC'])
