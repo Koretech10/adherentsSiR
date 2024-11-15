@@ -41,6 +41,9 @@ class PartnerCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des partenaires')
+            ->setPageTitle(Crud::PAGE_DETAIL, fn (Partner $partner) => \sprintf('Partenaire "%s"', $partner))
+            ->setPageTitle(Crud::PAGE_NEW, 'Créer un nouveau partenaire')
+            ->setPageTitle(Crud::PAGE_EDIT, fn (Partner $partner) => \sprintf('Modifier partenaire "%s"', $partner))
             ->setEntityLabelInSingular('partenaire')
             ->setEntityLabelInPlural('partenaires')
             ->setDefaultSort(['name' => 'ASC'])
