@@ -1,0 +1,31 @@
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{# @var partner \App\Entity\Partner #}
+{% set partner = entity.instance.partner %}
+
+{% if partner is null %}
+    <span class="badge badge-outline">Aucun(e)</span>
+{% else %}
+    <br />
+    <div class="row">
+        <div class="field-group field-value">
+            <div class="field-label">Nom</div>
+            <div class="field-value">{{ partner.name }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Adresse</div>
+            <div class="field-value">{{ partner.address }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Code postal</div>
+            <div class="field-value">{{ partner.postalCode }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Ville</div>
+            <div class="field-value">{{ partner.city }}</div>
+        </div>
+        <div class="field-group field-value">
+            <div class="field-label">Avantages</div>
+            <div class="field-value">{{ partner.offer }}</div>
+        </div>
+    </div>
+{% endif %}

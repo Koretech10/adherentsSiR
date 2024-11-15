@@ -63,6 +63,9 @@ class MemberCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des adhérents')
+            ->setPageTitle(Crud::PAGE_DETAIL, fn (Member $member) => \sprintf('Adhérent "%s"', $member))
+            ->setPageTitle(Crud::PAGE_NEW, 'Créer un nouvel adhérent')
+            ->setPageTitle(Crud::PAGE_EDIT, fn (Member $member) => \sprintf('Modifier adhérent "%s"', $member))
             ->setEntityLabelInSingular('adhérent')
             ->setEntityLabelInPlural('adhérents')
             ->setDefaultSort(['lastName' => 'ASC'])

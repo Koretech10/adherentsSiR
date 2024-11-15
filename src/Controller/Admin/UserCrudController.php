@@ -62,6 +62,9 @@ class UserCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Liste des utilisateurs')
+            ->setPageTitle(Crud::PAGE_DETAIL, fn (User $user) => \sprintf('Utilisateur "%s"', $user))
+            ->setPageTitle(Crud::PAGE_NEW, 'Créer un nouvel utilisateur')
+            ->setPageTitle(Crud::PAGE_EDIT, fn (User $user) => \sprintf('Modifier utilisateur "%s"', $user))
             ->setEntityLabelInSingular('utilisateur')
             ->setEntityLabelInPlural('utilisateurs')
             ->setDefaultSort(['username' => 'ASC'])
@@ -153,10 +156,18 @@ class UserCrudController extends AbstractCrudController
             ->setPermission(new Expression(self::CAN_CREATE_OR_UPDATE));
         yield AssociationField::new('member', 'Adhérent lié')
             ->setPermission('ROLE_USER_READ')
-            ->hideOnForm();
+            ->onlyOnIndex();
+        yield AssociationField::new('member', 'Adhérent lié')
+            ->setPermission('ROLE_MEMBER')
+            ->setTemplatePath('user/fields/member.html.twig')
+            ->onlyOnDetail();
         yield AssociationField::new('partner', 'Partenaire lié')
             ->setPermission('ROLE_USER_READ')
-            ->hideOnForm();
+            ->onlyOnIndex();
+        yield AssociationField::new('partner', 'Partenaire lié')
+            ->setPermission('ROLE_PARTNER')
+            ->setTemplatePath('user/fields/partner.html.twig')
+            ->onlyOnDetail();
         yield ImageField::new('avatar', 'Avatar')
             ->setUploadDir('public/img/avatar/')
             ->setUploadedFileNamePattern('[randomhash].[extension]')
