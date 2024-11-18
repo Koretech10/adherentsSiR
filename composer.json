@@ -1,7 +1,7 @@
 {
     "name": "sir/adherents",
     "description": "Gestion des adhérents et des partenaires de Switch in Reims",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "type": "project",
     "license": "MIT",
     "authors": [
