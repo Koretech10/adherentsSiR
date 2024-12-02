@@ -45,6 +45,10 @@ symfony console doctrine:migrations:migrate
 ```shell
 symfony console cache:clear
 ```
+- Compiler les assets
+```shell
+symfony console asset-map:compile
+```
 - Initialiser l'utilisateur root pour vous connecter à l'application
 ```shell
 symfony console root:manage
@@ -77,4 +81,8 @@ symfony console doctrine:migrations:migrate
 - Vider le cache de l'application
 ```shell
 symfony console cache:clear
+```
+- Compiler les assets
+```shell
+symfony console asset-map:compile
 ```
