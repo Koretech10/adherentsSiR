@@ -65,6 +65,10 @@ class HomeController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
+        yield MenuItem::linkToUrl('Retour au site', 'fa-solid fa-arrow-left', 'http://www.dsinreims.fr');
+
+        yield MenuItem::section();
+
         yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class)
             ->setPermission('ROLE_MEMBER_READ');
         yield MenuItem::linkToCrud('Liste des partenaires', 'fa-solid fa-shop', Partner::class)
