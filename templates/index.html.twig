@@ -1,19 +1,14 @@
 {% extends '@!EasyAdmin/layout.html.twig' %}
-{#{% extends '@!EasyAdmin/page/content.html.twig' %}#}
 
 {% block page_title %}Switch in Reims{% endblock %}
 
 {% block main %}
-
-<div class="example-wrapper">
-    <h2>Bienvenue <b>à Switch in Reims</b></h2>
-    <h3>Adherents</h3>
-    {% for adherent in adherents %}
-    <p>{{adherent.nom}} {{adherent.prenom}}</p>
-    {% endfor %}
-    <h3>Adherents Expirés</h3>
-    {% for adherent in adherentsExpires %}
-    <p>{{adherent.nom}} {{adherent.prenom}}</p>
-    {% endfor %}
-</div>
+    <h1>Bienvenue sur l’espace adhérents de <b>Switch in Reims</b></h1>
+    <div class="ratio ratio-16x9">
+        <iframe
+            src="https://www.youtube.com/embed/BRBB2pblN2I"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+        />
+    </div>
 {% endblock %}

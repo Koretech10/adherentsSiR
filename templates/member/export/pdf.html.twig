@@ -63,21 +63,24 @@
             <table>
                 <thead>
                     <tr>
+                        <th class="text-center col-d">Identifiant</th>
                         <th class="text-center col-d">Nom</th>
                         <th class="text-center col-d">Prénom</th>
                         <th class="text-center col-d">Date d'expiration</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for adherent in adherents %}
+                    {% for member in members %}
+                        {# @var \App\Entity\Member member #}
                         <tr class="text-right">
-                            <td class="col-d" nowrap>{{adherent.nom}}</td>
-                            <td class="col-d" nowrap>{{adherent.prenom}}</td>
-                            <td class="col-d" nowrap>{{adherent.dateExpiration|date('d/m/Y')}}</td>
+                            <td class="col-d" nowrap>{{ member.id }}</td>
+                            <td class="col-d" nowrap>{{ member.lastName }}</td>
+                            <td class="col-d" nowrap>{{ member.firstName }}</td>
+                            <td class="col-d" nowrap>{{ member.expirationDate|date('d/m/Y') }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        <div>
+        </div>
     </body>
 </html>

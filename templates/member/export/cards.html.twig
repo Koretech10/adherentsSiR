@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            @page {
+                margin: 10px;
+            }
+
+            .card {
+                padding-right: 135px;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            {% for index, member in members %}
+                {% if index is divisible by 2 %}
+                    <tr>
+                {% endif %}
+                        <td class="card">
+                            {% include 'member/export/card.html.twig' with {
+                                'logo': logo,
+                                'member': member.entity,
+                                'avatar': member.avatar,
+                            } only %}
+                        </td>
+                {% if index is not divisible by 2 %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </body>
+</html>

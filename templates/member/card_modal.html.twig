@@ -1,0 +1,22 @@
+<div id="modal-card" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body" id="modal-card-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import $ from 'jquery';
+
+    $(document).ready(function () {
+        $('.action-showCard').click(function () {
+            $.get($(this)[0].href, '', function (data) {
+               $('#modal-card-body').html(data)
+            });
+        });
+    });
+</script>

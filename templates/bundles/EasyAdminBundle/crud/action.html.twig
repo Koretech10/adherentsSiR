@@ -1,0 +1,6 @@
+{% if action.htmlAttributes['data-action-no-modal'] is defined %}
+    {% set htmlAttributes = action.htmlAttributes|filter((v, k) => k not in ['data-bs-toggle', 'data-bs-target']) %}
+    {% do action.setHtmlAttributes(htmlAttributes) %}
+{% endif %}
+
+{% include '@!EasyAdmin/crud/action.html.twig' %}

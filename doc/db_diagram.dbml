@@ -1,0 +1,28 @@
+// Copier le code dans https://dbdiagram.io/d pour afficher le schéma
+
+Table Member {
+  id integer [pk, not null]
+  user "fk" [ref: - User.id, not null]
+  nickname string [not null]
+  firstName string [not null]
+  lastName string [not null]
+  birthDate date [not null]
+  membershipDate date [not null]
+  expirationDate date [not null]
+}
+Table Partner {
+  id integer [pk, not null]
+  user "fk" [ref: - User.id, not null]
+  name string [not null]
+  address string [not null]
+  postalCode string [not null]
+  city string [not null]
+  offer text [not null]
+}
+Table User {
+  id integer [pk, not null]
+  username string [not null]
+  roles array [not null]
+  password string [not null]
+  avatar string
+}

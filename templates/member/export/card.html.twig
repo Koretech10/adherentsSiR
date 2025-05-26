@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            @page {
+                margin: 1px;
+            }
+
+            body {
+                margin: 0;
+                font-family: sans-serif;
+                color: white;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 321px;
+                height: 208px;
+            }
+            table tr td {
+                padding: 8px 5px;
+                font-size: small;
+            }
+
+            .logo-img {
+                height: 70px;
+                margin: -10px 0 10px 10px;
+            }
+
+            .avatar-img {
+                max-width: 110px;
+                max-height: 180px;
+            }
+
+            .container {
+                background-color: red;
+                width: 321px; /** Fera 85 mm avec un dpi de 96 */
+                height: 208px; /** Fera 55 mm avec un dpi de 96 **/
+            }
+
+            .margin-auto {
+                padding: 0;
+                margin: auto;
+            }
+
+            .text-bold {
+                font-weight: bold;
+            }
+
+            .w-30 {
+                width: 30% !important;
+            }
+
+            .w-40 {
+                width: 40% !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <table>
+                <tr>
+                    <td class="w-30" rowspan="2">
+                        <img class="logo-img" src="{{ logo }}" />
+                    </td>
+                    <td>&nbsp;</td>
+                    <td class="margin-auto w-40" rowspan="5">
+                        {% if avatar %}
+                            <img class="avatar-img" src="{{ avatar }}" />
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="text-bold" colspan="2">{{ member.nickname }} (#{{ member.id }})</td>
+                </tr>
+                <tr>
+                    <td colspan="2">{{ member.fullName }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">EXPIRE LE {{ member.expirationDate | date('d/m/Y') }}</td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

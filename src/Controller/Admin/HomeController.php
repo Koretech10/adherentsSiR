@@ -2,46 +2,43 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Partenaire;
-use App\Entity\Adherent;
+use App\Entity\Member;
+use App\Entity\Partner;
 use App\Entity\User;
-use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectManager;
-
+use App\Repository\MemberRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class HomeController extends AbstractDashboardController
 {
-    private readonly ObjectManager $om;
-
-    public function __construct(ManagerRegistry $manager)
+    public function __construct(private readonly MemberRepository $memberRepository)
     {
-        $this->om = $manager->getManager();
     }
-    
+
     #[Route('/', name: 'admin')]
     public function index(): Response
     {
-        $adherents = $this->om->getRepository(Adherent::class)->getAdherentsNonExpires(date('Y-m-d'));
-        $adherentsExpires = $this->om->getRepository(Adherent::class)->getAdherentsExpires(date('Y-m-d'));
-        return $this->render('index.html.twig', ['adherents' => $adherents, 'adherentsExpires' => $adherentsExpires]);
+        $now = new \DateTime();
+
+        return $this->render('index.html.twig', [
+            'unexpiredMembers' => $this->memberRepository->getUnexpiredMembers($now),
+            'expiredMembers' => $this->memberRepository->getExpiredMembers($now),
+        ]);
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('<img 
-                class="img-responsive d-flex mx-auto" 
-                height="150px" 
-                alt="Adhérents Switch In Reims" 
-                src="img/sir_logo_red.png" 
-            />')
-            ->setFaviconPath('img/favicon.ico');
+            ->setTitle('<img class="d-flex mx-auto menu-logo" src="img/sir_logo_red.png" alt="Adhérents Switch In Reims" />')
+            ->setFaviconPath('favicon.ico');
     }
 
     public function configureCrud(): Crud
@@ -52,13 +49,36 @@ class HomeController extends AbstractDashboardController
             ->setTimeFormat('HH:mm');
     }
 
+    public function configureUserMenu(UserInterface $user): UserMenu
+    {
+        /** @var User $user */
+        $avatarPath = $user->getAvatarPath();
+
+        return parent::configureUserMenu($user)
+            ->setAvatarUrl($avatarPath)
+            ->addMenuItems([
+                MenuItem::linkToCrud('Mon profil', 'fa fa-user', User::class)
+                    ->setAction(Action::DETAIL)
+                    ->setEntityId($user->getId()),
+            ]);
+    }
+
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Liste des partenaires', 'fas fa-list', Partenaire::class);
-        yield MenuItem::linkToCrud('Liste des adhérents', 'fas fa-list', Adherent::class);
-        yield MenuItem::linktoCrud('Liste des utilisateurs', 'fas fa-list', User::class)
+        yield MenuItem::linkToUrl('Retour au site', 'fa-solid fa-arrow-left', 'http://www.dsinreims.fr');
+
+        yield MenuItem::section();
+
+        yield MenuItem::linkToCrud('Liste des adhérents', 'fa-solid fa-people-group', Member::class)
+            ->setPermission('ROLE_MEMBER_READ');
+        yield MenuItem::linkToCrud('Liste des partenaires', 'fa-solid fa-shop', Partner::class)
+            ->setPermission('ROLE_PARTNER_READ');
+        yield MenuItem::linkToCrud('Liste des utilisateurs', 'fa-solid fa-user-gear', User::class)
             ->setPermission('ROLE_ADMIN');
-        yield MenuItem::linkToRoute('Liste des cartes', 'fas fa-pencil-alt', 'app_carte');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return Assets::new()->addAssetMapperEntry('logo');
     }
 }
