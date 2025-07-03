@@ -38,7 +38,7 @@ class UserExporter extends ExporterService
     /**
      * @param array<User> $users
      *
-     * @return array<array<string>>
+     * @return array<int, array<int, string>>
      */
     private function getData(array $users): array
     {

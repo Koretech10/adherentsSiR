@@ -314,6 +314,7 @@ class MemberCrudController extends AbstractCrudController
 
         $members = new ArrayCollection();
         foreach ($batchActionDto->getEntityIds() as $id) {
+            /** @var int $id */
             $member = $this->memberRepository->findOneBy(['id' => $id]);
 
             if (null === $member) {
