@@ -19,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -141,6 +142,8 @@ class UserCrudController extends AbstractCrudController
             ->setBasePath('img/avatar/')
             ->hideOnForm();
         yield TextField::new('username', 'Nom d’utilisateur');
+        yield EmailField::new('email', 'E-mail')
+            ->setRequired(true);
         yield TextField::new('password')
             ->setFormType(RepeatedType::class)
             ->setFormTypeOptions([
