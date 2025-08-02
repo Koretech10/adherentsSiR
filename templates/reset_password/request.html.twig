@@ -1,0 +1,15 @@
+{% extends 'reset_password/base.html.twig' %}
+
+{% block page_title %}Demander une réinitialisation de mot de passe{% endblock %}
+
+{% block error_wrapper %}
+    {% for flash_error in app.flashes('reset_password_error') %}
+        <div class="alert alert-danger" role="alert">
+            {{ flash_error }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block login_form_wrapper %}
+    {{ form(requestForm) }}
+{% endblock login_form_wrapper %}

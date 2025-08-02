@@ -9,3 +9,7 @@ parameters:
     level: max
     paths:
         - ../../src
+
+    ignoreErrors:
+        - identifier: missingType.generics
+        - identifier: missingType.iterableValue

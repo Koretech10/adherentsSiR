@@ -43,6 +43,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Partner $partner = null;
 
+    #[Assert\Email]
+    #[ORM\Column(nullable: true)]
+    private ?string $email;
+
     public function __toString(): string
     {
         return $this->username;
@@ -167,6 +171,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->partner = $partner;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): User
+    {
+        $this->email = $email;
 
         return $this;
     }

@@ -19,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -29,6 +30,7 @@ use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -36,7 +38,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class UserCrudController extends AbstractCrudController
 {
@@ -90,17 +91,23 @@ class UserCrudController extends AbstractCrudController
             ->setCssClass('btn btn-info')
             ->setIcon('fa fa-download')
             ->createAsGlobalAction();
+
         $changePasswordAction = Action::new('changePassword', 'Changer le mot de passe')
             ->linkToCrudAction('changePassword');
+
         $changePasswordDetailAction = Action::new('changePasswordDetail', 'Changer le mot de passe')
             ->linkToCrudAction('changePassword')
             ->setCssClass('btn btn-primary');
+
         $downloadMemberCardAction = Action::new('downloadMemberCard', 'Télécharger la carte d’adhérent')
             ->linkToUrl(function () {
+                /** @var User $user */
+                $user = $this->getContext()?->getEntity()->getInstance();
+
                 return $this->adminUrlGenerator
                     ->setController(MemberCrudController::class)
                     ->setAction('exportCard')
-                    ->setEntityId($this->getContext()?->getEntity()->getInstance()?->getMember()?->getId())
+                    ->setEntityId($user->getMember()?->getId())
                     ->generateUrl();
             })
             ->setCssClass('btn btn-info');
@@ -135,6 +142,8 @@ class UserCrudController extends AbstractCrudController
             ->setBasePath('img/avatar/')
             ->hideOnForm();
         yield TextField::new('username', 'Nom d’utilisateur');
+        yield EmailField::new('email', 'E-mail')
+            ->setRequired(true);
         yield TextField::new('password')
             ->setFormType(RepeatedType::class)
             ->setFormTypeOptions([
@@ -238,6 +247,7 @@ class UserCrudController extends AbstractCrudController
             return $this->redirect($this->adminUrlGenerator
                 ->setAction(Action::DETAIL)
                 ->setEntityId($user->getId())
+                ->generateUrl()
             );
         }
 
@@ -247,9 +257,6 @@ class UserCrudController extends AbstractCrudController
         ]);
     }
 
-    /**
-     * @phpstan-ignore missingType.parameter
-     */
     public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         /** @var User $user */
@@ -308,20 +315,24 @@ class UserCrudController extends AbstractCrudController
 
     private function hashPassword(): \Closure
     {
-        return function ($event) {
+        return function (FormEvent $event) {
             $form = $event->getForm();
+
             if (!$form->isValid()) {
                 return;
             }
+
             $password = $form->get('password')->getData();
-            if (null === $password) {
+
+            if (!\is_string($password)) {
                 return;
             }
 
-            /** @var PasswordAuthenticatedUserInterface $user */
+            /** @var User $user */
             $user = $this->getUser();
             $hash = $this->userPasswordHasher->hashPassword($user, $password);
-            $form->getData()->setPassword($hash);
+
+            $user->setPassword($hash);
         };
     }
 }

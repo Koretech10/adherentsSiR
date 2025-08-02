@@ -62,13 +62,13 @@ class SecurityController extends AbstractController
             //'password_parameter' => 'my_custom_password_field',
 
             // whether to enable or not the "forgot password?" link (default: false)
-            //'forgot_password_enabled' => true,
+            'forgot_password_enabled' => true,
 
             // the path (i.e. a relative or absolute URL) to visit when clicking the "forgot password?" link (default: '#')
-            //'forgot_password_path' => $this->generateUrl('...', ['...' => '...']),
+            'forgot_password_path' => $this->generateUrl('app_forgot_password_request'),
 
             // the label displayed for the "forgot password?" link (the |trans filter is applied to it)
-            //'forgot_password_label' => 'Forgot your password?',
+            'forgot_password_label' => 'Mot de passe oublié ?',
 
             // whether to enable or not the "remember me" checkbox (default: false)
             'remember_me_enabled' => true,
