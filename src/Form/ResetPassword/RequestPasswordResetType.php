@@ -13,6 +13,7 @@ class RequestPasswordResetType extends AbstractType
     {
         $builder->add('email', EmailType::class, [
             'label' => 'E-mail',
+            'help' => 'Entrez votre adresse e-mail pour recevoir un lien vous permettant de réinitialiser votre mot de passe.',
             'required' => true,
         ]);
 
