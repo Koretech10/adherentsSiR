@@ -10,4 +10,4 @@ when@prod:
     framework:
         router:
             strict_requirements: null
-            default_uri: 'https://adherents.dsinreims.fr/'
+            default_uri: '%env(DEFAULT_URI)'
