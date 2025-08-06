@@ -144,17 +144,6 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('username', 'Nom d’utilisateur');
         yield EmailField::new('email', 'E-mail')
             ->setRequired(true);
-        yield TextField::new('password')
-            ->setFormType(RepeatedType::class)
-            ->setFormTypeOptions([
-                'type' => PasswordType::class,
-                'invalid_message' => 'Les mots de passe doivent correspondre.',
-                'first_options' => ['label' => 'Mot de passe'],
-                'second_options' => ['label' => 'Répéter le mot de passe'],
-                'required' => true,
-                'mapped' => false,
-            ])
-            ->onlyWhenCreating();
         yield ChoiceField::new('roles', 'Rôles')
             ->allowMultipleChoices()
             ->setChoices([
@@ -186,16 +175,6 @@ class UserCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters->add('username');
-    }
-
-    public function createNewFormBuilder(
-        EntityDto $entityDto,
-        KeyValueStore $formOptions,
-        AdminContext $context,
-    ): FormBuilderInterface {
-        $formBuilder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
-
-        return $this->addPasswordEventListener($formBuilder);
     }
 
     protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
@@ -308,11 +287,6 @@ class UserCrudController extends AbstractCrudController
         return $exporter->getFile($users);
     }
 
-    private function addPasswordEventListener(FormBuilderInterface $formBuilder): FormBuilderInterface
-    {
-        return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
-    }
-
     private function hashPassword(): \Closure
     {
         return function (FormEvent $event) {
@@ -334,5 +308,16 @@ class UserCrudController extends AbstractCrudController
 
             $user->setPassword($hash);
         };
+    }
+
+    public function createEntity(string $entityFqcn): User
+    {
+        /** @var User $user */
+        $user = parent::createEntity($entityFqcn);
+        $hash = $this->userPasswordHasher->hashPassword($user, 'test');
+
+        $user->setPassword($hash);
+
+        return $user;
     }
 }
