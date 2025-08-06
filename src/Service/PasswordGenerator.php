@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-class PasswordGenerator
+readonly class PasswordGenerator
 {
     public static function generate(int $length = 16): string
     {
