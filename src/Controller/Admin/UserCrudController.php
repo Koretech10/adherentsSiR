@@ -5,16 +5,15 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Form\ChangePasswordType;
 use App\Service\Exporter\UserExporter;
+use App\Service\PasswordGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -27,11 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Security\Permission;
 use Psr\Container\ContainerExceptionInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\ExpressionLanguage\Expression;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -144,17 +139,6 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('username', 'Nom d’utilisateur');
         yield EmailField::new('email', 'E-mail')
             ->setRequired(true);
-        yield TextField::new('password')
-            ->setFormType(RepeatedType::class)
-            ->setFormTypeOptions([
-                'type' => PasswordType::class,
-                'invalid_message' => 'Les mots de passe doivent correspondre.',
-                'first_options' => ['label' => 'Mot de passe'],
-                'second_options' => ['label' => 'Répéter le mot de passe'],
-                'required' => true,
-                'mapped' => false,
-            ])
-            ->onlyWhenCreating();
         yield ChoiceField::new('roles', 'Rôles')
             ->allowMultipleChoices()
             ->setChoices([
@@ -186,16 +170,6 @@ class UserCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters->add('username');
-    }
-
-    public function createNewFormBuilder(
-        EntityDto $entityDto,
-        KeyValueStore $formOptions,
-        AdminContext $context,
-    ): FormBuilderInterface {
-        $formBuilder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
-
-        return $this->addPasswordEventListener($formBuilder);
     }
 
     protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
@@ -308,11 +282,6 @@ class UserCrudController extends AbstractCrudController
         return $exporter->getFile($users);
     }
 
-    private function addPasswordEventListener(FormBuilderInterface $formBuilder): FormBuilderInterface
-    {
-        return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
-    }
-
     private function hashPassword(): \Closure
     {
         return function (FormEvent $event) {
@@ -329,10 +298,21 @@ class UserCrudController extends AbstractCrudController
             }
 
             /** @var User $user */
-            $user = $this->getUser();
+            $user = $form->getData();
             $hash = $this->userPasswordHasher->hashPassword($user, $password);
 
             $user->setPassword($hash);
         };
+    }
+
+    public function createEntity(string $entityFqcn): User
+    {
+        /** @var User $user */
+        $user = parent::createEntity($entityFqcn);
+        $hash = $this->userPasswordHasher->hashPassword($user, PasswordGenerator::generate());
+
+        $user->setPassword($hash);
+
+        return $user;
     }
 }
